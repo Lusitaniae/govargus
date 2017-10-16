@@ -1,0 +1,79 @@
+<html>
+  <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Govargus | Discuss</title>
+  <meta charset="utf-8">
+    <style media="screen">
+        .chart{
+            float:left;
+            width:20%;
+        }
+        body {
+            margin: 0;
+            font-family: 'Lato', sans-serif;
+        }
+        header {
+            background: #eeeeee;
+            padding: 1 1;
+            text-align: center;
+            box-shadow: 0px 1px 5px #757575;
+        }
+        header h1{
+              margin: 18px;
+        }
+        header h1, header a{
+            color: black;
+            text-decoration: none;
+        }
+        header h1 span {
+            color: #3366cc;
+        }
+        header p {
+            margin: 0 0 16px;
+        }
+        section {
+            padding: 1%;
+        }
+        footer, footer a{
+          position: absolute;
+          bottom: 0.6%;
+          color: #288ce4;
+          font-style: normal;
+          text-decoration: none;
+          right: 0.6%;
+          text-align: right;
+          font-style: none;
+        }
+    </style>
+  </head>
+
+  <body>
+      <header>
+          <a href="/"><h1>Gov<span>argus</span></h1></a>
+          <p>The many eyed giant returned to monitor the United States of America.</p>
+      </header>
+      <section>
+        <div id="disqus_thread"></div>
+    </section>
+    <script>
+    /**
+
+    var disqus_config = function () {
+    this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+    this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    */
+    (function() { // DON'T EDIT BELOW THIS LINE
+    var d = document, s = d.createElement('script');
+    s.src = 'https://govargus.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+    <footer>
+      <a href="/discuss.html">Discuss</a>
+    </footer>
+  </body>
+</html>

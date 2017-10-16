@@ -1,0 +1,329 @@
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Govargus</title>
+    <!--Load the AJAX API-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+    <script type="text/javascript">
+
+      google.charts.load('current', {'packages':['corechart']});
+      google.charts.setOnLoadCallback(drawChart);
+
+      var metrics = [
+  [[
+    {
+      "name": "Unemployment Rate",
+      "col1": "Date",
+      "col2": "rate"
+    },
+    {
+      "2014": 6.6,
+      "2014": 5.7,
+      "2015": 4.9,
+      "2016": 4.8,
+      "2017": 4.4
+    }
+  ],
+  [
+    {
+      "name": "GDP Growth",
+      "col1": "Date",
+      "col2": "rate"
+    },
+    {
+      "2013": 4.31,
+      "2014": 4.33,
+      "2015": 3.11,
+      "2016": 3.38,
+      "2017": 3.84
+    }
+  ],
+  [
+    {
+      "name": "Stock Market (S&P 500)",
+      "col1": "Date",
+      "col2": "Value"
+    },
+    {
+      "2014": 1822.36,
+      "2015": 2028.18,
+      "2015": 1918.60,
+      "2016": 2275.12,
+      "2017": 2555.24
+    }
+  ],
+  [
+    {
+      "name": "Trade Deficit (Billion $US)",
+      "col1": "Date",
+      "col2": "rate"
+    },
+    {
+      "2012": -536.77,
+      "2013": -461.88,
+      "2014": -490.18,
+      "2015": -500.36,
+      "2016": -500.56
+    }
+  ],
+  [
+    {
+      "name": "Budget Deficit (Billion $US)",
+      "col1": "Date",
+      "col2": "rate"
+    },
+    {
+      "2012": -1273.536,
+      "2013": -738.473,
+      "2014": -705.369,
+      "2015": -639.212,
+      "2016": -821.209
+    }
+]],
+  [[ // source http://www.disastercenter.com/crime/uscrime.htm
+    {
+      "name": "Crime Rate",
+      "col1": "Date",
+      "col2": "rate"
+    },
+    {
+      "Q4 16": 5.0,
+      "Q1 17": 5.4,
+      "Q2 17": 5.3,
+      "Q3 17": 5.1,
+      "Q4 17": 4.5
+    }
+  ],
+  [
+    {
+      "name": "Violent Crime Rate",
+      "col1": "Date",
+      "col2": "rate"
+    },
+    {
+      "2012": 387.8,
+      "2013": 379.1,
+      "2014": 372.0,
+      "2015": 384.6,
+      "2016": 397.1
+    }
+  ],
+  [
+    {
+      "name": "Incarceration Rate (per 100k pop.)",
+      "col1": "Date",
+      "col2": "rate"
+    },
+    {
+      "2010": 960,
+      "2011": 940,
+      "2012": 920,
+      "2013": 910,
+      "2014": 900
+    }
+  ],
+  [ // source http://www.disastercenter.com/crime/uscrime.htm
+    {
+      "name": "Homicide Rate",
+      "col1": "Date",
+      "col2": "rate"
+    },
+    {
+        "2012": 4.7,
+        "2013": 4.5,
+        "2014": 4.4,
+        "2015": 4.9,
+        "2016": 5.3
+    }
+  ],
+  [
+    {
+      "name": "Gun Death Rate",
+      "col1": "Date",
+      "col2": "rate"
+    },
+    {
+      "Q4 16": 5.0,
+      "Q1 17": 5.4,
+      "Q2 17": 5.3,
+      "Q3 17": 5.1,
+      "Q4 17": 4.5
+    }
+]],
+  [[ // source https://www.cdc.gov/nchs/data/nhis/earlyrelease/insur201609.pdf
+    {
+      "name": "Health Insurance Coverage (% Uninsured)",
+      "col1": "Date",
+      "col2": "rate"
+    },
+    {
+        "2012": 15.1,
+        "2013": 14.7,
+        "2014": 14.3,
+        "2015": 9.10,
+        "2016": 8.60
+    }
+  ],
+  [ // source http://www.insurancejournal.com/news/national/2015/11/12/388800.htm
+    {
+      "name": "Health Insurance avg Cost",
+      "col1": "Date",
+      "col2": "rate"
+    },
+    {
+      "2012": 9906,
+      "2013": 10237,
+      "2014": 10686,
+      "2015": 11032,
+      "2016": 11484
+    }
+  ],
+  [ // source https://stateofobesity.org/obesity-rates-trends-overview/
+    {
+      "name": "Obesity Rate",
+      "col1": "Date",
+      "col2": "rate"
+    },
+    {
+      "2010": 34.3,
+      "2011": 33.7,
+      "2012": 35.7,
+      "2013": 34.8,
+      "2014": 37.7
+    }
+  ],
+  [
+    {
+      "name": "Smoking Rate",
+      "col1": "Date",
+      "col2": "rate"
+    },
+    {
+      "Q4 16": 5.0,
+      "Q1 17": 5.4,
+      "Q2 17": 5.3,
+      "Q3 17": 5.1,
+      "Q4 17": 4.5
+    }
+  ],
+  [
+    {
+      "name": "Alcoholism Rate",
+      "col1": "Date",
+      "col2": "rate"
+    },
+    {
+      "Q4 16": 5.0,
+      "Q1 17": 5.4,
+      "Q2 17": 5.3,
+      "Q3 17": 5.1,
+      "Q4 17": 4.5
+    }
+]]
+];
+
+      function drawChart() {
+
+          $(metrics).each(function(i) {
+              $(metrics[i]).each(function(j) {
+
+              var data = new google.visualization.DataTable();
+              data.addColumn('string', metrics[i][j][0].col1);
+              data.addColumn('number', metrics[i][j][0].col2);
+
+             $.each((metrics[i][j][1]), function(z, v) {
+                 data.addRow(new Array(z, v));
+             });
+
+              var options = {'title':metrics[i][j][0].name,
+                'legend': 'none'
+                };
+                console.log($(".chart.row"+i+ ".col"+j))
+              var chart = new google.visualization.LineChart(document.getElementById("row"+i+"col"+j));
+              chart.draw(data, options);
+
+          });
+
+
+      });
+  }
+    </script>
+    <style media="screen">
+        .chart{
+            float:left;
+            width:20%;
+        }
+        body {
+            margin: 0;
+            font-family: 'Lato', sans-serif;
+        }
+        header {
+            background: #eeeeee;
+            padding: 1 1;
+            text-align: center;
+            box-shadow: 0px 1px 5px #757575;
+        }
+        header h1{
+              margin: 18px;
+        }
+        header h1, header a{
+            color: black;
+            text-decoration: none;
+        }
+        header h1 span {
+            color: #3366cc;
+        }
+        header p {
+            margin: 0 0 16px;
+        }
+        section {
+            padding: 1%;
+        }
+        footer, footer a{
+          position: absolute;
+          bottom: 0.6%;
+          color: #288ce4;
+          font-style: normal;
+          text-decoration: none;
+          right: 0.6%;
+          text-align: right;
+          font-style: none;
+        }
+    </style>
+  </head>
+
+  <body>
+      <header>
+          <a href="/"><h1>Gov<span>argus</span></h1></a>
+          <p>The many eyed giant returned to monitor the United States of America.</p>
+      </header>
+      <section>
+      <h3>Economic Indicators</h3>
+        <div id="row0col0" class="chart"></div>
+        <div id="row0col1" class="chart"></div>
+        <div id="row0col2" class="chart"></div>
+        <div id="row0col3" class="chart"></div>
+        <div id="row0col4" class="chart"></div>
+        <div id="row0col5" class="chart"></div>
+      <h3>Crime Indicators</h3>
+        <div id="row1col0" class="chart"></div>
+        <div id="row1col1" class="chart"></div>
+        <div id="row1col2" class="chart"></div>
+        <div id="row1col3" class="chart"></div>
+        <div id="row1col4" class="chart"></div>
+        <div id="row1col5" class="chart"></div>
+      <h3>Health Indicators</h3>
+        <div id="row2col0" class="chart"></div>
+        <div id="row2col1" class="chart"></div>
+        <div id="row2col2" class="chart"></div>
+        <div id="row2col3" class="chart"></div>
+        <div id="row2col4" class="chart"></div>
+        <div id="row2col5" class="chart"></div>
+    </section>
+    <footer>
+      <a href="discuss.html">Discuss</a>
+    </footer>
+  </body>
+</html>
