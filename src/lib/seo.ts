@@ -26,11 +26,12 @@ export const indicatorTitle = (ind: Indicator, series: Series) => `US ${shortNam
 export const indicatorDescription = (ind: Indicator, series: Series) =>
   `US ${shortName(ind)}: ${latest(ind, series)}. Every term since ${chartFrom(series.points).slice(0, 4)} next to the trend it inherited, with the policies around it.`;
 
-export const compareTitle = (ind: Indicator) => `${ind.name.replace(/\s*\(.*\)$/, '')}: each president's term side by side`;
+export const compareTitle = (ind: Indicator) => `${ind.name.replace(/\s*\(.*\)$/, '')} under each president, compared`;
 export const compareDescription = (ind: Indicator, series: Series) =>
   `${ind.name.replace(/\s*\(.*\)$/, '')} under every president since ${chartFrom(series.points).slice(0, 4)}, lined up from inauguration day. Latest: ${latest(ind, series)}.`;
 
-export const presidentTitle = (p: President) => `Economy, crime and health under ${p.name}, ${termYears(p)}`;
+export const presidentHeading = (p: President) => `Economy, crime and health under ${p.name}`;
+export const presidentTitle = (p: President) => `${presidentHeading(p)}, ${termYears(p)}`;
 export const presidentDescription = (p: President) =>
   `How jobs, inflation, income, the deficit, crime and health changed under ${p.name}, ${termYears(p)}, next to the trend inherited.`;
 
@@ -56,6 +57,9 @@ export function dataset(ind: Indicator, series: Series) {
     spatialCoverage: { '@type': 'Place', name: 'United States' },
     dateModified: series.fetched,
     isAccessibleForFree: true,
+    // Works of the US federal government are public domain; World Bank data is CC BY 4.0.
+    license: ind.source.publisher === 'World Bank' ? 'https://creativecommons.org/licenses/by/4.0/' : 'https://creativecommons.org/publicdomain/mark/1.0/',
+    keywords: [ind.name, `${shortName(ind)} by president`, 'United States', 'presidential terms'],
     distribution: [{
       '@type': 'DataDownload',
       encodingFormat: 'application/json',

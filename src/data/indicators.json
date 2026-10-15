@@ -40,7 +40,27 @@
       "summary": "change"
     },
     {
+      "id": "jobs",
+      "phrase": "the number of payroll jobs",
+      "group": "economy",
+      "name": "Nonfarm payroll jobs",
+      "unit": "million jobs",
+      "decimals": 1,
+      "source": {
+        "kind": "fred",
+        "series": "PAYEMS",
+        "scale": 0.001,
+        "publisher": "Bureau of Labor Statistics",
+        "page": "https://fred.stlouisfed.org/series/PAYEMS",
+        "label": "FRED PAYEMS"
+      },
+      "frequency": "monthly",
+      "description": "Total jobs on US nonfarm payrolls (Current Employment Statistics survey, seasonally adjusted). The change over a term is the number of jobs added or lost.",
+      "summary": "change"
+    },
+    {
       "id": "gdp-growth",
+      "phrase": "real GDP growth",
       "group": "economy",
       "name": "Real GDP growth",
       "unit": "%",
@@ -58,6 +78,7 @@
     },
     {
       "id": "inflation",
+      "phrase": "inflation",
       "group": "economy",
       "name": "Inflation (CPI, year over year)",
       "unit": "%",
@@ -76,6 +97,7 @@
     },
     {
       "id": "labor-participation",
+      "phrase": "labor force participation",
       "group": "economy",
       "name": "Labor force participation",
       "unit": "%",
@@ -93,6 +115,7 @@
     },
     {
       "id": "real-weekly-earnings",
+      "phrase": "real median weekly earnings",
       "group": "households",
       "name": "Real median weekly earnings (1982–84 $)",
       "unit": "$",
@@ -106,6 +129,24 @@
       },
       "frequency": "quarterly",
       "description": "Median usual weekly earnings of full-time wage and salary workers, adjusted for inflation (CPI-U, 1982–84 dollars).",
+      "summary": "change"
+    },
+    {
+      "id": "gas-price",
+      "phrase": "the price of regular gasoline",
+      "group": "households",
+      "name": "Gasoline price (regular, per gallon)",
+      "unit": "$",
+      "decimals": 2,
+      "source": {
+        "kind": "fred",
+        "series": "APU000074714",
+        "publisher": "Bureau of Labor Statistics",
+        "page": "https://fred.stlouisfed.org/series/APU000074714",
+        "label": "FRED APU000074714"
+      },
+      "frequency": "monthly",
+      "description": "Average US retail price of a gallon of regular unleaded gasoline (CPI average price data). In dollars of the day, not adjusted for inflation; mostly set by world oil prices.",
       "summary": "change"
     },
     {
@@ -144,6 +185,7 @@
     },
     {
       "id": "deficit",
+      "phrase": "the federal budget balance",
       "group": "fiscal",
       "name": "Federal surplus or deficit (% of GDP)",
       "unit": "% of GDP",
@@ -263,6 +305,7 @@
     },
     {
       "id": "life-expectancy",
+      "phrase": "life expectancy",
       "group": "health",
       "name": "Life expectancy at birth",
       "unit": "years",

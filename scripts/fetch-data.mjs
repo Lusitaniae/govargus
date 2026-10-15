@@ -58,11 +58,12 @@ function parseFredCsv(text) {
     .map(([d, v]) => [d, Number(v)]);
 }
 
-async function fred({ series, transformation }) {
+// `scale` converts units, e.g. 0.001 for a series published in thousands but shown in millions.
+async function fred({ series, transformation, scale = 1 }) {
   const url = new URL('https://fred.stlouisfed.org/graph/fredgraph.csv');
   url.searchParams.set('id', series);
   if (transformation) url.searchParams.set('transformation', transformation);
-  return parseFredCsv(await get(url));
+  return parseFredCsv(await get(url)).map(([d, v]) => [d, Math.round(v * scale * 1e6) / 1e6]);
 }
 
 // --- FBI ---------------------------------------------------------------------

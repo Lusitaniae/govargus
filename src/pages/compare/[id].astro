@@ -4,6 +4,7 @@ import OverlayChart from '../../components/OverlayChart.astro';
 import TermStatView from '../../components/TermStat.astro';
 import { indicators, presidents, seriesFor, termStat, termTrajectory, termEnd, CHART_FROM } from '../../lib/data';
 import { compareTitle, compareDescription, breadcrumbs } from '../../lib/seo';
+import { termRange, currentTerm } from '../../lib/summary';
 
 export function getStaticPaths() {
   return indicators.map((ind) => ({ params: { id: ind.id } }));
@@ -16,6 +17,7 @@ const trajectories = terms.map((p) => termTrajectory(ind, series.points, p)).fil
 // Default highlight: the three most recent terms with data.
 const initial = trajectories.slice(-3).map((t) => t.slug).reverse();
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const facts = [termRange(ind, series), currentTerm(ind, series)].filter(Boolean);
 ---
 <Layout
   title={compareTitle(ind)}
@@ -41,6 +43,8 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     <OverlayChart indicator={ind} trajectories={trajectories} presidents={presidents} initial={initial} />
   </div>
 
+  {facts.length > 0 && <p class="facts">{facts.join(' ')}</p>}
+
   <h2>Numbers</h2>
   <div class="table-scroll">
     <table class="data">
@@ -62,6 +66,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 </Layout>
 
 <style>
+  .facts { max-width: 68ch; }
   .switch { display: flex; align-items: center; gap: 8px; margin: 16px 0; }
   select { font: inherit; font-size: 15px; padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-primary); max-width: 100%; }
 </style>

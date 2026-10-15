@@ -18,6 +18,8 @@ export interface Indicator {
   frequency: Frequency;
   summary: 'change' | 'average';
   description: string;
+  /** Sentence subject for generated summaries, when 'the <name>' reads wrong. */
+  phrase?: string;
   source: { kind: string; publisher: string; page: string; label: string; [k: string]: unknown };
 }
 export interface Series { id: string; fetched: string; points: Point[]; provisionalFrom?: string }

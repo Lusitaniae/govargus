@@ -7,6 +7,7 @@ import {
   formatValue, formatPeriod, formatDate, KIND_LABEL, termEnd,
 } from '../../lib/data';
 import { indicatorTitle, indicatorDescription, dataset, breadcrumbs } from '../../lib/seo';
+import { extremes, termRange, currentTerm } from '../../lib/summary';
 
 export function getStaticPaths() {
   return indicators.map((ind) => ({ params: { id: ind.id } }));
@@ -22,6 +23,8 @@ const rows = presidents
   .map((p) => ({ p, stat: termStat(ind, series.points, p) }))
   .reverse();
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const [, bare, unit] = ind.name.match(/^(.*?)(?:\s*(\(.*\)))?$/)!;
+const facts = [extremes(ind, series), termRange(ind, series), currentTerm(ind, series)].filter(Boolean);
 ---
 <Layout
   title={indicatorTitle(ind, series)}
@@ -30,7 +33,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   schema={[dataset(ind, series), breadcrumbs([['Indicators', '/'], [ind.name, `/indicators/${ind.id}`]])]}
 >
   <p class="small muted">{group.name}</p>
-  <h1>{ind.name}</h1>
+  <h1>{bare} by president{unit && <span class="unit"> {unit}</span>}</h1>
   <p class="lede">{ind.description}</p>
   <p><span class="value">{formatValue(lastValue, ind)}</span> <span class="muted">latest, {formatPeriod(lastDate, ind.frequency)}{series.provisionalFrom && ' (provisional)'}</span></p>
 
@@ -41,6 +44,8 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     Source: {ind.source.publisher}, via <a href={ind.source.page}>{ind.source.label}</a>.{' '}
     {ind.frequency[0].toUpperCase() + ind.frequency.slice(1)} data, fetched {formatDate(series.fetched)}.
   </p>
+
+  <p class="facts">{facts.join(' ')}</p>
 
   <h2>By presidential term</h2>
   <p class="small"><a href={`${base}/compare/${ind.id}`}>{ind.name}, term by term</a>: every term lined up from inauguration on one chart.</p>
@@ -82,6 +87,8 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 <style>
   .value { font-size: 28px; font-weight: 600; }
+  h1 .unit { font-weight: 400; color: var(--text-secondary); font-size: 0.7em; }
+  .facts { max-width: 68ch; }
   .events { list-style: none; padding: 0; margin: 0; }
   .events li { padding: 10px 0; border-bottom: 1px solid var(--grid); }
 </style>

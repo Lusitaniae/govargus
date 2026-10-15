@@ -15,12 +15,13 @@ const days = Math.floor((Date.parse(today()) - Date.parse(current.start)) / 864e
 ---
 <Layout
   title="US economy, crime and health by president"
+  description="Jobs, unemployment, inflation, gas prices, debt, crime and life expectancy by president since 1980, from official data, next to the trend each term inherited."
   schema={{ '@context': 'https://schema.org', '@type': 'WebSite', name: 'Govargus', url: abs('/') }}
 >
   <div class="home">
     <h1>How is the United States doing?</h1>
     <p class="lede">
-      Official indicators for {current.name.replace(/ \(.*\)/, '')}'s term so far, {days.toLocaleString('en-US')} days in, next to
+      The US economy, household finances, federal budget, crime and health by president, from official data. Indicators for {current.name.replace(/ \(.*\)/, '')}'s term so far, {days.toLocaleString('en-US')} days in, next to
       where {prev.name.replace(/ \(.*\)/, '')} was at the same point. Presidents share the controls with Congress, the Fed and the
       rest of the world, and most policies take years to show up, so nothing here is scored. <a href={`${base}/about`}>How to read this</a>.
     </p>
