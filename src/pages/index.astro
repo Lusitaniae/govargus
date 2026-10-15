@@ -3,7 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import LineChart from '../components/LineChart.astro';
 import {
   groups, indicators, presidents, seriesFor, chartFrom, formatValue, formatPeriod, presidentAt,
-  termSoFar, monthYear, addYears, today,
+  termSoFar, formatDate, addYears, today,
 } from '../lib/data';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const current = presidentAt(today()) ?? presidents.at(-1)!;
@@ -27,6 +27,9 @@ const days = Math.floor((Date.parse(today()) - Date.parse(current.start)) / 864e
       <input type="radio" name="range" id="r-long" value="long" />
       <label for="r-long">Since 1980</label>
     </div>
+    <p class="small muted key">
+      <span class="delta">▲▼</span> change since {current.short} took office ({formatDate(current.start)}), next to {prev.short} at the same point in their term.
+    </p>
 
     {groups.map((g) => (
       <section>
@@ -52,14 +55,13 @@ const days = Math.floor((Date.parse(today()) - Date.parse(current.start)) / 864e
                   {soFar ? (
                     <>
                       {soFar.kind === 'change' ? (
-                        <span>
+                        <span class="line1">
                           <b class="delta">{soFar.pct !== undefined ? arrow(soFar.pct, pctText(soFar.pct)) : arrow(soFar.value, ptsText(soFar.value))}</b>
-                          {' '}since {monthYear(current.start)}
-                          {soFar.pct !== undefined && <span class="muted abs"> ({fmt(soFar.value)})</span>}
+                          {soFar.pct !== undefined && <span class="muted abs"> {fmt(soFar.value)}</span>}
                         </span>
                       ) : <span>avg <b>{fmt(soFar.value)}</b> this term</span>}
                       {soFar.prev !== undefined && (
-                        <span class="muted">{prev.short} at the same point: {soFar.kind === 'change'
+                        <span class="muted">{prev.short}, same point: {soFar.kind === 'change'
                           ? (soFar.prevPct !== undefined ? arrow(soFar.prevPct, pctText(soFar.prevPct)) : arrow(soFar.prev, ptsText(soFar.prev)))
                           : fmt(soFar.prev)}</span>
                       )}
@@ -111,6 +113,8 @@ const days = Math.floor((Date.parse(today()) - Date.parse(current.start)) / 864e
   .so-far { margin: 0 0 6px; }
   .so-far > span { display: block; }
   .so-far .abs { display: inline; }
+  .so-far .line1 { white-space: nowrap; }
+  .key { margin: 10px 0 0; }
   .delta { display: inline-block; font-size: 13px; padding: 1px 7px; border-radius: 999px; background: var(--band-hl); color: var(--text-primary); font-variant-numeric: tabular-nums; }
   .short, .long { margin-top: auto; }
   .long { display: none; }
