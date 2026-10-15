@@ -25,6 +25,7 @@ const rows = presidents
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const [, bare, unit] = ind.name.match(/^(.*?)(?:\s*(\(.*\)))?$/)!;
 const facts = [extremes(ind, series), termRange(ind, series), currentTerm(ind, series)].filter(Boolean);
+const related = indicators.filter((i) => i.group === ind.group && i.id !== ind.id);
 ---
 <Layout
   title={indicatorTitle(ind, series)}
@@ -70,6 +71,15 @@ const facts = [extremes(ind, series), termRange(ind, series), currentTerm(ind, s
     </table>
   </div>
 
+  {related.length > 0 && (
+    <>
+      <h2>More {group.name.toLowerCase()} indicators</h2>
+      <ul class="related">
+        {related.map((i) => <li><a href={`${base}/indicators/${i.id}`}>{i.name.replace(/\s*\(.*\)$/, '')} by president</a></li>)}
+      </ul>
+    </>
+  )}
+
   {relevant.length > 0 && (
     <>
       <h2>Events that bear on this indicator</h2>
@@ -89,6 +99,8 @@ const facts = [extremes(ind, series), termRange(ind, series), currentTerm(ind, s
   .value { font-size: 28px; font-weight: 600; }
   h1 .unit { font-weight: 400; color: var(--text-secondary); font-size: 0.7em; }
   .facts { max-width: 68ch; }
+  .related { padding-left: 20px; }
+  .related li { margin: 4px 0; }
   .events { list-style: none; padding: 0; margin: 0; }
   .events li { padding: 10px 0; border-bottom: 1px solid var(--grid); }
 </style>

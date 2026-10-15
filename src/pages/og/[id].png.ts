@@ -1,13 +1,15 @@
-// Social preview images (1200×630): one per indicator, plus 'site' for every
-// other page. Drawn as SVG and rasterized at build time with resvg, using the
+// Social preview images (1200×630): one per indicator, one per president
+// ('president-<slug>'), plus 'site' for every other page. Drawn as SVG and rasterized at build time with resvg, using the
 // vendored DejaVu fonts so the output doesn't depend on the build machine.
 import type { APIRoute } from 'astro';
 import { readFileSync } from 'node:fs';
 import { Resvg } from '@resvg/resvg-js';
-import { indicators, presidents, seriesFor, chartFrom, termEnd, formatValue, formatPeriod, type Point } from '../../lib/data';
+import { indicators, presidents, seriesFor, chartFrom, termEnd, formatValue, formatPeriod, CHART_FROM, type Point } from '../../lib/data';
+import { termYears } from '../../lib/seo';
 
 export function getStaticPaths() {
-  return [...indicators.map((i) => i.id), 'site'].map((id) => ({ params: { id } }));
+  const terms = presidents.filter((p) => termEnd(p) > CHART_FROM).map((p) => `president-${p.slug}`);
+  return [...indicators.map((i) => i.id), ...terms, 'site'].map((id) => ({ params: { id } }));
 }
 
 const W = 1200, H = 630, L = 72, R = W - 72;
@@ -25,7 +27,8 @@ function wrap(text: string, max: number): string[] {
   return lines;
 }
 
-function chart(points: Point[], top: number, bottom: number): string {
+/** Alternating term bands, or only `highlight`'s term, tinted. */
+function chart(points: Point[], top: number, bottom: number, highlight?: string): string {
   const from = chartFrom(points);
   const pts = points.filter(([d]) => d >= from);
   const t0 = Date.parse(from), t1 = Date.parse(pts.at(-1)![0]);
@@ -37,7 +40,10 @@ function chart(points: Point[], top: number, bottom: number): string {
     .filter((p) => termEnd(p) > from && p.start < pts.at(-1)![0])
     .map((p, i) => {
       const x0 = Math.max(L, x(p.start)), x1 = Math.min(R, x(termEnd(p)));
-      return i % 2 ? '' : `<rect x="${x0}" y="${top - 16}" width="${x1 - x0}" height="${bottom - top + 32}" fill="#0b0b0b" fill-opacity="0.045"/>`;
+      const rect = (fill: string, opacity: number) =>
+        `<rect x="${x0}" y="${top - 16}" width="${x1 - x0}" height="${bottom - top + 32}" fill="${fill}" fill-opacity="${opacity}"/>`;
+      if (highlight) return p.slug === highlight ? rect('#2a78d6', 0.14) : '';
+      return i % 2 ? '' : rect('#0b0b0b', 0.045);
     }).join('');
   const d = pts.map(([dt, v], i) => `${i ? 'L' : 'M'}${x(dt).toFixed(1)},${y(v).toFixed(1)}`).join('');
   return `${bands}
@@ -46,7 +52,7 @@ function chart(points: Point[], top: number, bottom: number): string {
     <text x="${R}" y="${bottom + 50}" font-size="24" fill="#898781" text-anchor="end">${pts.at(-1)![0].slice(0, 4)}</text>`;
 }
 
-function card(title: string, sub: string, subStrong: string, points: Point[]): string {
+function card(title: string, sub: string, subStrong: string, points: Point[], highlight?: string): string {
   const lines = wrap(title, 30).slice(0, 2);
   const titleSvg = lines.map((l, i) => `<text x="${L}" y="${196 + i * 70}" font-size="60" font-weight="bold" fill="#0b0b0b">${esc(l)}</text>`).join('');
   const subY = 196 + lines.length * 70 + 4;
@@ -55,13 +61,17 @@ function card(title: string, sub: string, subStrong: string, points: Point[]): s
     <text x="${L}" y="96" font-size="34" font-weight="bold" fill="#0b0b0b">Gov<tspan fill="#2a78d6">argus</tspan></text>
     ${titleSvg}
     <text x="${L}" y="${subY}" font-size="32" fill="#52514e"><tspan font-weight="bold" fill="#2a78d6">${esc(subStrong)}</tspan>${esc(sub)}</text>
-    ${chart(points, subY + 60, H - 90)}
+    ${chart(points, subY + 60, H - 90, highlight)}
   </svg>`;
 }
 
 export const GET: APIRoute = ({ params }) => {
   const ind = indicators.find((i) => i.id === params.id);
-  const svg = ind
+  const president = presidents.find((p) => `president-${p.slug}` === params.id);
+  const svg = president
+    ? card(`Economy, crime and health under ${president.name}`, ` · ${president.party} · unemployment rate shown`,
+        termYears(president), seriesFor('unemployment').points, president.slug)
+    : ind
     ? (() => {
         const s = seriesFor(ind.id);
         const [d, v] = s.points.at(-1)!;

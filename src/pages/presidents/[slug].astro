@@ -28,6 +28,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 <Layout
   title={presidentTitle(p)}
   description={presidentDescription(p)}
+  image={`/og/president-${p.slug}.png`}
   schema={breadcrumbs([['Presidents', '/presidents'], [p.name, `/presidents/${p.slug}`]])}
 >
   <p class="small"><a href={`${base}/presidents`}>Presidents</a></p>

@@ -16,7 +16,10 @@ const days = Math.floor((Date.parse(today()) - Date.parse(current.start)) / 864e
 <Layout
   title="US economy, crime and health by president"
   description="Jobs, unemployment, inflation, gas prices, debt, crime and life expectancy by president since 1980, from official data, next to the trend each term inherited."
-  schema={{ '@context': 'https://schema.org', '@type': 'WebSite', name: 'Govargus', url: abs('/') }}
+  schema={{
+    '@context': 'https://schema.org', '@type': 'WebSite', name: 'Govargus', url: abs('/'),
+    publisher: { '@type': 'Person', name: 'Lusitaniae', url: 'https://github.com/Lusitaniae' },
+  }}
 >
   <div class="home">
     <h1>How is the United States doing?</h1>
