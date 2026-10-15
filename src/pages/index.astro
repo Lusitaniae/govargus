@@ -41,9 +41,10 @@ const days = Math.floor((Date.parse(today()) - Date.parse(current.start)) / 864e
             const soFar = termSoFar(ind, s.points, current, prev);
             const fmt = (v: number) => soFar!.kind === 'change' ? formatValue(v, ind, { signed: true }) : formatValue(v, ind);
             // Neutral arrows: whether up is good depends on the indicator, and nothing here is scored.
-            const arrow = (v: number, text: string) => Math.abs(Number(v.toFixed(1))) === 0 ? 'no change' : `${v > 0 ? '▲' : '▼'}\u00a0${text}`;
-            const pctText = (v: number) => `${Math.abs(v).toFixed(1)}%`;
-            const ptsText = (v: number) => formatValue(Math.abs(v), ind, { signed: true }).replace(/^\+/, '');
+            // "No change" when the figure rounds to zero at the precision it is shown with.
+            const arrow = (v: number, text: string, decimals: number) => Number(v.toFixed(decimals)) === 0 ? 'no change' : `${v > 0 ? '▲' : '▼'}\u00a0${text}`;
+            const pct = (v: number) => arrow(v, `${Math.abs(v).toFixed(1)}%`, 1);
+            const pts = (v: number) => arrow(v, formatValue(Math.abs(v), ind, { signed: true }).replace(/^\+/, ''), ind.decimals);
             const shortStart = s.points[0][0] > shortFrom ? s.points[0][0] : shortFrom;
             return (
               <article class="card">
@@ -56,13 +57,13 @@ const days = Math.floor((Date.parse(today()) - Date.parse(current.start)) / 864e
                     <>
                       {soFar.kind === 'change' ? (
                         <span class="line1">
-                          <b class="delta">{soFar.pct !== undefined ? arrow(soFar.pct, pctText(soFar.pct)) : arrow(soFar.value, ptsText(soFar.value))}</b>
+                          <b class="delta">{soFar.pct !== undefined ? pct(soFar.pct) : pts(soFar.value)}</b>
                           {soFar.pct !== undefined && <span class="muted abs"> {fmt(soFar.value)}</span>}
                         </span>
                       ) : <span>avg <b>{fmt(soFar.value)}</b> this term</span>}
                       {soFar.prev !== undefined && (
                         <span class="muted">{prev.short}, same point: {soFar.kind === 'change'
-                          ? (soFar.prevPct !== undefined ? arrow(soFar.prevPct, pctText(soFar.prevPct)) : arrow(soFar.prev, ptsText(soFar.prev)))
+                          ? (soFar.prevPct !== undefined ? pct(soFar.prevPct) : pts(soFar.prev))
                           : fmt(soFar.prev)}</span>
                       )}
                     </>

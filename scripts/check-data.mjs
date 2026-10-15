@@ -16,6 +16,9 @@ for (const ind of indicators) {
   if (ids.has(ind.id)) errors.push(`duplicate indicator ${ind.id}`);
   ids.add(ind.id);
   if (!groupIds.has(ind.group)) errors.push(`${ind.id}: unknown group ${ind.group}`);
+  // Provisional rolling 12-month windows overlap each other, so averaging them
+  // would count the same months several times.
+  if (ind.source.provisional && ind.summary !== 'change') errors.push(`${ind.id}: provisional data needs summary "change"`);
   try {
     await access(new URL(`series/${ind.id}.json`, ROOT));
   } catch {

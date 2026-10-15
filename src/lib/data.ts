@@ -2,6 +2,9 @@ import indicatorConfig from '../data/indicators.json';
 import presidentsJson from '../data/presidents.json';
 import eventsJson from '../data/events.json';
 import recessionsJson from '../data/recessions.json';
+import { MONTHS, formatValue } from './format';
+
+export { formatPeriod, formatValue } from './format';
 
 export type Point = [string, number];
 export type Frequency = 'monthly' | 'quarterly' | 'annual';
@@ -57,23 +60,12 @@ export const KIND_LABEL: Record<string, string> = {
 
 // --- dates ------------------------------------------------------------------
 
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
 /** Observations are dated at the start of their period; this is when it ends. */
 export function periodEnd(date: string, freq: Frequency): string {
   const d = new Date(date + 'T00:00:00Z');
   const months = freq === 'monthly' ? 1 : freq === 'quarterly' ? 3 : 12;
   d.setUTCMonth(d.getUTCMonth() + months);
   return d.toISOString().slice(0, 10);
-}
-
-export function formatPeriod(date: string, freq: Frequency): string {
-  const [y, m] = date.split('-').map(Number);
-  // An annual point not dated January is a rolling 12-month window.
-  if (freq === 'annual' && m !== 1) return `12 mo. to ${MONTHS[(m + 10) % 12]} ${y + 1}`;
-  if (freq === 'annual') return String(y);
-  if (freq === 'quarterly') return `Q${Math.floor((m - 1) / 3) + 1} ${y}`;
-  return `${MONTHS[m - 1]} ${y}`;
 }
 
 export function formatDate(date: string): string {
@@ -89,17 +81,6 @@ export function addYears(date: string, years: number): string {
 const yearsBetween = (a: string, b: string) => (Date.parse(b) - Date.parse(a)) / (365.25 * 864e5);
 
 // --- values -------------------------------------------------------------------
-
-export function formatValue(v: number, ind: Indicator, opts: { signed?: boolean; decimals?: number } = {}): string {
-  const decimals = opts.decimals ?? ind.decimals;
-  // Sign from the rounded value, so nothing prints as "−0.00".
-  const r = Number(v.toFixed(decimals));
-  const sign = opts.signed && r > 0 ? '+' : r < 0 ? '−' : '';
-  const n = Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
-  if (ind.unit === '$') return `${sign}$${n}`;
-  if (ind.unit.startsWith('%')) return `${sign}${n}${opts.signed ? ' pts' : '%'}`;
-  return `${sign}${n} ${ind.unit}`;
-}
 
 /** Last observation whose whole period was complete by `date`. */
 export function valueAsOf(points: Point[], date: string, freq: Frequency): Point | null {

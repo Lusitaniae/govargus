@@ -96,7 +96,9 @@ const slotOf = (slug: string) => initial.indexOf(slug) + 1;
     // reshuffle when another term is added or removed.
     const slots: (string | null)[] = [null, null, null];
     JSON.parse(root.dataset.initial!).forEach((s: string, i: number) => (slots[i] = s));
-    const order: string[] = slots.filter(Boolean) as string[];
+    // Selection order, oldest first. `initial` lists the newest term first, so
+    // reverse it: adding a fourth term drops the oldest default, not the current one.
+    const order: string[] = (slots.filter(Boolean) as string[]).reverse();
     const render = () => {
       for (const el of root.querySelectorAll<HTMLElement | SVGElement>('[data-slug]')) {
         const slot = slots.indexOf(el.dataset.slug!);

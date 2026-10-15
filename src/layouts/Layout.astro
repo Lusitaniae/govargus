@@ -50,20 +50,10 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
 <script>
   // Crosshair + tooltip for every chart. Reads the precomputed pixel positions
   // the server wrote into data-chart, so no scales are recomputed here.
-  const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  import { formatPeriod, formatValue } from '../lib/format';
   type Data = {
     points: [string, number][]; xy: [number, number][]; terms: [string, string, string][];
     unit: string; decimals: number; frequency: string; plot: [number, number]; width: number; provisionalFrom: string | null;
-  };
-  const period = (d: string, f: string) => {
-    const [y, m] = d.split('-').map(Number);
-    if (f === 'annual' && m !== 1) return `12 mo. to ${MONTHS[(m + 10) % 12]} ${y + 1}`;
-    return f === 'annual' ? String(y) : f === 'quarterly' ? `Q${Math.floor((m - 1) / 3) + 1} ${y}` : `${MONTHS[m - 1]} ${y}`;
-  };
-  const fmt = (v: number, data: Data) => {
-    const n = Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: data.decimals, maximumFractionDigits: data.decimals });
-    const s = v < 0 ? '−' : '';
-    return data.unit === '$' ? `${s}$${n}` : data.unit.startsWith('%') ? `${s}${n}%` : `${s}${n} ${data.unit}`;
   };
 
   for (const fig of document.querySelectorAll<HTMLElement>('figure[data-chart]')) {
@@ -86,7 +76,7 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
       dot.setAttribute('cx', String(cx)); dot.setAttribute('cy', String(cy));
       const who = data.terms.find(([s, e]) => s <= date && date < e)?.[2] ?? '';
       const prov = data.provisionalFrom && date >= data.provisionalFrom ? ' (provisional)' : '';
-      tip.innerHTML = `<b>${fmt(value, data)}</b>${prov}<br>${period(date, data.frequency)}${who ? ` · <span>${who}</span>` : ''}`;
+      tip.innerHTML = `<b>${formatValue(value, data)}</b>${prov}<br>${formatPeriod(date, data.frequency)}${who ? ` · <span>${who}</span>` : ''}`;
       fig.classList.add('active');
       const left = cx * scale, top = cy * scale;
       const w = tip.offsetWidth;
@@ -144,10 +134,10 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
       --recession: rgba(255, 255, 255, 0.02);
       --recession-ink: rgba(255, 255, 255, 0.13);
       --link: #6da7ec;
-    --cat-1: #3987e5;
-    --cat-2: #d95926;
-    --cat-3: #199e70;
-    --context-line: rgba(255, 255, 255, 0.18);
+      --cat-1: #3987e5;
+      --cat-2: #d95926;
+      --cat-3: #199e70;
+      --context-line: rgba(255, 255, 255, 0.18);
     }
   }
   :root[data-theme='dark'] {

@@ -98,6 +98,9 @@ const recs = (showRecessions ? recessions : [])
 const evts = events.filter((e) => e.indicators.includes(ind.id) && e.date >= from && e.date <= to);
 
 const plotTop = M.top, plotBottom = H - M.bottom;
+// Unique per chart: a page can draw the same indicator twice (the homepage's two ranges),
+// and url(#id) resolving into a hidden duplicate leaves the hatching unpainted.
+const patternId = `rec-${ind.id}-${size}-${from}-${to}`;
 const zeroInside = lo < 0 && hi > 0;
 const labelFits = (p: { x0: number; x1: number; short: string }) => p.x1 - p.x0 > p.short.length * FONT * 0.6 + 6;
 
@@ -116,7 +119,7 @@ const hoverData = JSON.stringify({
 <figure class:list={['chart', `size-${size}`]} data-chart={hoverData}>
   <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`${ind.name}, ${from.slice(0, 4)} to ${to.slice(0, 4)}`}>
     <defs>
-      <pattern id={`rec-${ind.id}-${size}`} width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <pattern id={patternId} width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
         <rect width="6" height="6" class="rec-bg" />
         <line x1="0" y1="0" x2="0" y2="6" class="rec-hatch" />
       </pattern>
@@ -134,7 +137,7 @@ const hoverData = JSON.stringify({
 
     {recs.map((r) => (
       <rect class="rec" x={r.x0} y={plotTop} width={r.x1 - r.x0} height={plotBottom - plotTop}
-        fill={`url(#rec-${ind.id}-${size})`}><title>Recession (NBER)</title></rect>
+        fill={`url(#${patternId})`}><title>Recession (NBER)</title></rect>
     ))}
 
     {yTicks.map((v) => (

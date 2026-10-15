@@ -16,12 +16,22 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - run: node scripts/fetch-data.mjs
-      - run: node scripts/fetch-policy.mjs
+      # A failing source shouldn't throw away what the others fetched: commit
+      # whatever succeeded, then fail the run at the end so it still shows.
+      - id: data
+        run: node scripts/fetch-data.mjs
+        continue-on-error: true
+      - id: policy
+        run: node scripts/fetch-policy.mjs
+        continue-on-error: true
         env:
           # Free key from https://api.data.gov/signup/; falls back to DEMO_KEY.
           CONGRESS_API_KEY: ${{ secrets.CONGRESS_API_KEY }}
       - run: node scripts/check-data.mjs
+      # Don't push data the site can't build from: every push to master deploys.
+      - run: npm ci && npx astro build
+        env:
+          ASTRO_TELEMETRY_DISABLED: 1
       - name: Commit if changed
         run: |
           git add src/data
@@ -30,3 +40,8 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git commit -m "data: weekly refresh $(date -u +%Y-%m-%d)"
           git push
+      - name: Fail if a fetch failed
+        if: steps.data.outcome == 'failure' || steps.policy.outcome == 'failure'
+        run: |
+          echo "data: ${{ steps.data.outcome }}, policy: ${{ steps.policy.outcome }}"
+          exit 1

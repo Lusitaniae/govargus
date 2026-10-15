@@ -4,9 +4,9 @@
 //
 // Congress.gov needs an api.data.gov key: CONGRESS_API_KEY, falling back to
 // DEMO_KEY (10 requests/hour). Finished Congresses never change, so their files
-// are cached and only missing ones plus the current Congress are fetched. With
-// DEMO_KEY the backfill completes over several runs; hitting the rate limit
-// keeps what was fetched and exits 0.
+// are cached and only missing ones, the current Congress and one that ended in
+// the last six months are fetched. With DEMO_KEY the backfill completes over
+// several runs; hitting the rate limit keeps what was fetched and exits 0.
 import { writeFile, mkdir, access } from 'node:fs/promises';
 
 const ROOT = new URL('../src/data/policy/', import.meta.url);
@@ -14,6 +14,12 @@ const LAWS_DIR = new URL('laws/', ROOT);
 const KEY = process.env.CONGRESS_API_KEY || 'DEMO_KEY';
 const FIRST_CONGRESS = 97;
 const currentCongress = Math.floor((new Date().getUTCFullYear() - 1789) / 2) + 1;
+// Bills passed at the end of a Congress are often signed in early January, and
+// Congress.gov takes weeks to assign law numbers, so a Congress is only treated
+// as final (and its cache trusted) this long after it ends.
+const SETTLE_DAYS = 180;
+const congressEnd = (c) => Date.parse(`${1789 + 2 * c}-01-03`);
+const settled = (c) => Date.now() > congressEnd(c) + SETTLE_DAYS * 864e5;
 
 class RateLimited extends Error {}
 
@@ -109,7 +115,7 @@ try {
   for (let c = currentCongress; c >= FIRST_CONGRESS; c--) {
     const file = new URL(`${String(c).padStart(3, '0')}.json`, LAWS_DIR);
     const cached = await access(file).then(() => true, () => false);
-    if (cached && c < currentCongress) continue;
+    if (cached && c < currentCongress && settled(c)) continue;
     console.log(`laws, ${ordinal(c)} Congress: ${await fetchLaws(c)}`);
   }
 } catch (err) {
