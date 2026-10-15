@@ -1,0 +1,3 @@
+# Old sitemap URLs from @astrojs/sitemap, live briefly before the switch to one sitemap.xml.
+/sitemap-index.xml /sitemap.xml 301
+/sitemap-0.xml /sitemap.xml 301
