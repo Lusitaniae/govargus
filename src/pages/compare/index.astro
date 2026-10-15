@@ -1,0 +1,125 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import {
+  groups, indicators, presidents, seriesFor, termStat, termHeadline, termEnd, formatHeadline, CHART_FROM,
+} from '../../lib/data';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const terms = presidents.filter((p) => termEnd(p) > CHART_FROM);
+const grid = indicators.map((ind) => {
+  const s = seriesFor(ind.id);
+  return { ind, cells: terms.map((p) => ({ p, h: termHeadline(termStat(ind, s.points, p)), partial: p.end === null })) };
+});
+
+// Party summaries use completed terms only.
+const PARTIES = ['Democratic', 'Republican'];
+const mean = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
+const byParty = grid.map(({ ind, cells }) => ({
+  ind,
+  parties: PARTIES.map((party) => {
+    const done = cells.filter((c) => c.p.party === party && !c.partial && c.h);
+    const shifts = done.filter((c) => c.h!.before !== undefined).map((c) => c.h!.during - c.h!.before!);
+    return {
+      n: done.length,
+      during: done.length ? mean(done.map((c) => c.h!.during)) : null,
+      shift: shifts.length ? mean(shifts) : null,
+      nShift: shifts.length,
+    };
+  }),
+}));
+const signed = (v: number, ind: (typeof indicators)[number]) =>
+  ind.summary === 'average' ? `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(ind.decimals || 1)}${ind.unit.startsWith('%') ? ' pts' : ''}` : formatHeadline(v, ind);
+---
+<Layout title="Compare presidents">
+  <h1>Compare presidents</h1>
+  <p class="lede">
+    Every indicator against every term. For levels (unemployment, debt, income) each cell is the change per year in office;
+    for rates (growth, inflation, deficit) it is the average during the term. The smaller number underneath is the same measure
+    over the four years before the term: the trend each president inherited. Pick an indicator to see the terms overlaid.
+  </p>
+
+  <div class="table-scroll grid-wrap">
+    <table class="data grid">
+      <thead>
+        <tr>
+          <th>Indicator</th>
+          {terms.map((p) => <th><a href={`${base}/presidents/${p.slug}`}>{p.name.replace(/ \((\w+) term\)/, ' ($1)')}</a></th>)}
+        </tr>
+      </thead>
+      {groups.map((g) => (
+        <tbody>
+          <tr class="group"><th colspan={terms.length + 1}>{g.name}</th></tr>
+          {grid.filter((r) => r.ind.group === g.id).map(({ ind, cells }) => (
+            <tr>
+              <th scope="row">
+                <a href={`${base}/compare/${ind.id}`}>{ind.name}</a>
+                <span class="muted small">{ind.summary === 'average' ? 'average' : 'change per year'}</span>
+              </th>
+              {cells.map((c) => (
+                <td>
+                  {c.h ? (
+                    <>
+                      <span class="v">{formatHeadline(c.h.during, ind)}{c.partial && '*'}</span>
+                      {c.h.before !== undefined && <span class="muted small">{formatHeadline(c.h.before, ind)}</span>}
+                    </>
+                  ) : <span class="muted">—</span>}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      ))}
+    </table>
+  </div>
+  <p class="small muted">* Term in progress, through the latest data.</p>
+
+  <h2>By party</h2>
+  <div class="caveat panel">
+    <p><b>Read this with care.</b> These are averages over very few terms, a handful per party since 1977. One recession or
+    pandemic can swing them, and no attempt is made to separate a president's influence from Congress, the Fed or the world
+    economy. The second figure, the shift against the inherited trend, is slightly more informative than the raw average, but it
+    is not a causal estimate either.</p>
+  </div>
+  <div class="table-scroll">
+    <table class="data">
+      <thead>
+        <tr>
+          <th rowspan="2">Indicator</th>
+          {PARTIES.map((p) => <th colspan="2">{p} terms</th>)}
+        </tr>
+        <tr>
+          {PARTIES.map(() => <><th>Average</th><th>vs inherited</th></>)}
+        </tr>
+      </thead>
+      <tbody>
+        {byParty.map(({ ind, parties }) => (
+          <tr>
+            <td><a href={`${base}/compare/${ind.id}`}>{ind.name}</a></td>
+            {parties.map((pt) => (
+              <>
+                <td>{pt.during !== null ? <>{formatHeadline(pt.during, ind)} <span class="muted small">n={pt.n}</span></> : <span class="muted">—</span>}</td>
+                <td>{pt.shift !== null ? <>{signed(pt.shift, ind)} <span class="muted small">n={pt.nShift}</span></> : <span class="muted">—</span>}</td>
+              </>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  <p class="small muted">Completed terms only. n is the number of terms with data for that indicator. "vs inherited" is the term's figure minus the same figure over the four years before it, averaged.</p>
+</Layout>
+
+<style>
+  .grid-wrap { margin-top: 16px; }
+  .grid { font-size: 13px; }
+  .grid th, .grid td { white-space: nowrap; }
+  .grid thead th { vertical-align: bottom; white-space: normal; min-width: 92px; }
+  .grid thead th a { color: var(--text-secondary); }
+  .grid th[scope='row'] { position: sticky; left: 0; background: var(--page); text-align: left; font-weight: 500; white-space: normal; min-width: 180px; }
+  .grid th[scope='row'] span { display: block; font-weight: 400; }
+  .grid td span { display: block; }
+  .grid .v { color: var(--text-primary); }
+  .grid tr.group th { text-align: left; padding-top: 18px; font-size: 14px; position: sticky; left: 0; background: var(--page); }
+  .caveat { margin-bottom: 12px; max-width: 760px; }
+  .caveat p { margin: 0; font-size: 14px; }
+</style>

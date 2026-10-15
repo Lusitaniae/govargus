@@ -17,7 +17,7 @@ export interface Indicator {
   description: string;
   source: { kind: string; publisher: string; page: string; label: string; [k: string]: unknown };
 }
-export interface Series { id: string; source: string; fetched: string; points: Point[] }
+export interface Series { id: string; fetched: string; points: Point[]; provisionalFrom?: string }
 export interface President { slug: string; name: string; short: string; party: string; start: string; end: string | null }
 export interface PolicyEvent { date: string; kind: string; title: string; summary: string; indicators: string[]; link: string }
 export interface Recession { start: string; end: string | null }
@@ -69,6 +69,8 @@ export function periodEnd(date: string, freq: Frequency): string {
 
 export function formatPeriod(date: string, freq: Frequency): string {
   const [y, m] = date.split('-').map(Number);
+  // An annual point not dated January is a rolling 12-month window.
+  if (freq === 'annual' && m !== 1) return `12 mo. to ${MONTHS[(m + 10) % 12]} ${y + 1}`;
   if (freq === 'annual') return String(y);
   if (freq === 'quarterly') return `Q${Math.floor((m - 1) / 3) + 1} ${y}`;
   return `${MONTHS[m - 1]} ${y}`;
@@ -90,7 +92,9 @@ const yearsBetween = (a: string, b: string) => (Date.parse(b) - Date.parse(a)) /
 
 export function formatValue(v: number, ind: Indicator, opts: { signed?: boolean; decimals?: number } = {}): string {
   const decimals = opts.decimals ?? ind.decimals;
-  const sign = opts.signed && v > 0 ? '+' : v < 0 ? '−' : '';
+  // Sign from the rounded value, so nothing prints as "−0.00".
+  const r = Number(v.toFixed(decimals));
+  const sign = opts.signed && r > 0 ? '+' : r < 0 ? '−' : '';
   const n = Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
   if (ind.unit === '$') return `${sign}$${n}`;
   if (ind.unit.startsWith('%')) return `${sign}${n}${opts.signed ? ' pts' : '%'}`;
@@ -150,4 +154,46 @@ export function termStat(ind: Indicator, points: Point[], p: President): TermSta
   const perYear = (end[1] - start[1]) / yearsBetween(start[0], end[0]);
   const priorPerYear = prior && prior[0] < start[0] ? (start[1] - prior[1]) / yearsBetween(prior[0], start[0]) : undefined;
   return { kind: 'change', start, end, perYear, priorPerYear, partial };
+}
+
+// --- comparing terms ------------------------------------------------------------
+
+export interface Trajectory { slug: string; points: [number, number][]; partial: boolean }
+
+/**
+ * One term as [years since inauguration, value] pairs. 'change' indicators are
+ * shown relative to the last full period before inauguration, so every term
+ * starts at zero; 'average' indicators (rates) keep their actual values.
+ */
+export function termTrajectory(ind: Indicator, points: Point[], p: President): Trajectory | null {
+  const base = valueAsOf(points, p.start, ind.frequency);
+  if (!base) return null;
+  const end = termEnd(p);
+  const rel = ind.summary === 'change';
+  const out: [number, number][] = [];
+  for (const [d, v] of points) {
+    if (d < base[0] || d >= end) continue;
+    // Place each observation at the end of its period: that's when it was known.
+    const t = yearsBetween(p.start, periodEnd(d, ind.frequency));
+    out.push([+t.toFixed(3), rel ? v - base[1] : v]);
+  }
+  if (out.length < 2) return null;
+  return { slug: p.slug, points: out, partial: p.end === null };
+}
+
+/** Per-term headline number used in the comparison grid. */
+export function termHeadline(stat: TermStat | null): { during: number; before?: number } | null {
+  if (!stat) return null;
+  return stat.kind === 'average'
+    ? { during: stat.mean!, before: stat.priorMean }
+    : { during: stat.perYear!, before: stat.priorPerYear };
+}
+
+/** Per-year changes are small, so they get one more decimal than levels (whole numbers stay whole). */
+export const perYearDecimals = (ind: Indicator) => (ind.decimals === 0 ? 0 : Math.min(2, ind.decimals + 1));
+
+/** "+0.32 pts/yr" for change indicators, "2.4%" for averaged rates. */
+export function formatHeadline(v: number, ind: Indicator): string {
+  if (ind.summary === 'average') return formatValue(v, ind);
+  return `${formatValue(v, ind, { signed: true, decimals: perYearDecimals(ind) })}/yr`;
 }

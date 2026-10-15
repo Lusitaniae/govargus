@@ -167,6 +167,35 @@ async function censusXlsx({ url, match }) {
   return points.sort(([a], [b]) => a.localeCompare(b));
 }
 
+// --- CDC provisional 12-month windows ---------------------------------------------
+
+// Rolling 12-month rates ending each quarter (dataset 489q-934x). A window is
+// dated by its first month, so the window ending Q4 lands on that calendar
+// year's annual point. Windows that start after the last final year extend the
+// series and are flagged provisional; earlier ones only check the final values.
+async function cdcProvisional({ dataset, where }, id, finals) {
+  const url = new URL(`https://data.cdc.gov/resource/${dataset}.json`);
+  for (const [k, v] of Object.entries(where)) url.searchParams.set(k, v);
+  url.searchParams.set('$limit', '5000');
+  const final = new Map(finals);
+  const lastFinal = finals.at(-1)[0];
+  const extra = [];
+  for (const r of await get(url, { as: 'json' })) {
+    const m = String(r.year_and_quarter).match(/^(\d{4}) Q([1-4])$/);
+    const v = Number(r.rate_overall);
+    if (!m || r.rate_overall === undefined || !Number.isFinite(v)) continue;
+    const endMonth = Number(m[2]) * 3; // 3, 6, 9, 12
+    const startYear = Number(m[1]) - (endMonth === 12 ? 0 : 1);
+    const startMonth = endMonth === 12 ? 1 : endMonth + 1;
+    const date = `${startYear}-${String(startMonth).padStart(2, '0')}-01`;
+    if (date > lastFinal) extra.push([date, v]);
+    else if (final.has(date) && Math.abs(final.get(date) - v) > 0.15) {
+      console.warn(`  ${id}: provisional ${date.slice(0, 4)} (${v}) differs from final (${final.get(date)})`);
+    }
+  }
+  return extra.sort(([a], [b]) => a.localeCompare(b));
+}
+
 const FETCHERS = { fred, fbi, 'cdc-socrata': cdcSocrata, 'cdc-wonder': cdcWonder, 'census-xlsx': censusXlsx };
 
 // --- run -----------------------------------------------------------------------
@@ -184,6 +213,10 @@ for (const ind of config.indicators) {
     const points = (await fetcher(ind.source, ind.id)).filter(([d]) => d >= KEEP_FROM);
     if (points.length < 8) throw new Error(`only ${points.length} points`);
     const out = { id: ind.id, fetched: new Date().toISOString().slice(0, 10), points };
+    if (ind.source.provisional) {
+      const extra = await cdcProvisional(ind.source.provisional, ind.id, points);
+      if (extra.length) Object.assign(out, { points: [...points, ...extra], provisionalFrom: extra[0][0] });
+    }
     await writeFile(new URL(`${ind.id}.json`, SERIES_DIR), JSON.stringify(out) + '\n');
     console.log(`${ind.id.padEnd(26)} ${points.length} pts, ${points[0][0].slice(0, 4)}–, latest ${points.at(-1).join(' = ')}`);
   } catch (err) {

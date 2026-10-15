@@ -181,7 +181,7 @@
       "group": "safety",
       "name": "Violent crime rate",
       "unit": "per 100k",
-      "decimals": 1,
+      "decimals": 0,
       "source": {
         "kind": "fbi",
         "field": "violent_crime",
@@ -247,11 +247,19 @@
         ],
         "publisher": "CDC National Center for Health Statistics",
         "page": "https://wonder.cdc.gov/ucd-icd10-expanded.html",
-        "label": "CDC WONDER"
+        "label": "CDC WONDER",
+        "provisional": {
+          "dataset": "489q-934x",
+          "where": {
+            "time_period": "12 months ending with quarter",
+            "rate_type": "Age-adjusted",
+            "cause_of_death": "Firearm-related injury"
+          }
+        }
       },
       "frequency": "annual",
       "summary": "change",
-      "description": "Deaths from firearm injuries of any intent (suicide, homicide, accident), age-adjusted, per 100,000 people. From death certificates; final data starts in 1999. Roughly half are suicides."
+      "description": "Deaths from firearm injuries of any intent (suicide, homicide, accident), age-adjusted, per 100,000 people. From death certificates; final data starts in 1999. Roughly half are suicides. Points after the last final year are provisional rolling 12-month rates from the CDC's quarterly estimates, shown dashed."
     },
     {
       "id": "life-expectancy",
@@ -302,11 +310,19 @@
         ],
         "publisher": "CDC National Center for Health Statistics",
         "page": "https://data.cdc.gov/d/rdjz-vn2n",
-        "label": "data.cdc.gov"
+        "label": "data.cdc.gov",
+        "provisional": {
+          "dataset": "489q-934x",
+          "where": {
+            "time_period": "12 months ending with quarter",
+            "rate_type": "Age-adjusted",
+            "cause_of_death": "Drug overdose"
+          }
+        }
       },
       "frequency": "annual",
       "summary": "change",
-      "description": "Drug overdose deaths per 100,000 people, age-adjusted. Two CDC datasets joined at 2018, where both report the same value. Final data starts in 1999."
+      "description": "Drug overdose deaths per 100,000 people, age-adjusted. Two CDC datasets joined at 2018, where both report the same value. Final data starts in 1999. Points after the last final year are provisional rolling 12-month rates from the CDC's quarterly estimates, shown dashed."
     },
     {
       "id": "uninsured",

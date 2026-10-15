@@ -1,0 +1,61 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import OverlayChart from '../../components/OverlayChart.astro';
+import TermStatView from '../../components/TermStat.astro';
+import { indicators, presidents, seriesFor, termStat, termTrajectory, termEnd, CHART_FROM } from '../../lib/data';
+
+export function getStaticPaths() {
+  return indicators.map((ind) => ({ params: { id: ind.id } }));
+}
+
+const ind = indicators.find((i) => i.id === Astro.params.id)!;
+const series = seriesFor(ind.id);
+const terms = presidents.filter((p) => termEnd(p) > CHART_FROM);
+const trajectories = terms.map((p) => termTrajectory(ind, series.points, p)).filter((t) => t !== null);
+// Default highlight: the three most recent terms with data.
+const initial = trajectories.slice(-3).map((t) => t.slug).reverse();
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+<Layout title={`Compare: ${ind.name}`} description={`${ind.name} through each presidential term, lined up by years in office.`}>
+  <p class="small"><a href={`${base}/compare`}>Compare</a></p>
+  <h1>{ind.name}, term by term</h1>
+  <p class="lede">
+    Every term lined up from its inauguration. Context is everything: compare the start of a term with the trend it inherited
+    and with what was happening in the world (recessions, pandemics), all of which are on the <a href={`${base}/indicators/${ind.id}`}>full chart</a>.
+  </p>
+
+  <nav class="switch" aria-label="Other indicators">
+    <label class="small muted" for="ind-switch">Indicator</label>
+    <select id="ind-switch" onchange="location.href=this.value">
+      {indicators.map((i) => <option value={`${base}/compare/${i.id}`} selected={i.id === ind.id}>{i.name}</option>)}
+    </select>
+  </nav>
+
+  <div class="panel">
+    <OverlayChart indicator={ind} trajectories={trajectories} presidents={presidents} initial={initial} />
+  </div>
+
+  <h2>Numbers</h2>
+  <div class="table-scroll">
+    <table class="data">
+      <thead><tr><th>President</th><th>During term</th><th>4 years before</th></tr></thead>
+      <tbody>
+        {terms.slice().reverse().map((p) => {
+          const stat = termStat(ind, series.points, p);
+          return (
+            <tr>
+              <td><a href={`${base}/presidents/${p.slug}`}>{p.name}</a></td>
+              <td><TermStatView ind={ind} stat={stat} part="during" /></td>
+              <td><TermStatView ind={ind} stat={stat} part="before" /></td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  </div>
+</Layout>
+
+<style>
+  .switch { display: flex; align-items: center; gap: 8px; margin: 16px 0; }
+  select { font: inherit; font-size: 15px; padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-primary); max-width: 100%; }
+</style>

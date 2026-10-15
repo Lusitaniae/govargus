@@ -1,0 +1,163 @@
+---
+// Every presidential term on one axis of "years since inauguration". All terms
+// are drawn as faint context; up to three are highlighted (chosen with the
+// checkboxes, wired up in the script below). Without JS the default three show.
+import { type Indicator, type Trajectory, type President, formatValue } from '../lib/data';
+
+interface Props {
+  indicator: Indicator;
+  trajectories: Trajectory[];
+  presidents: President[];
+  initial: string[];
+}
+const { indicator: ind, trajectories, presidents, initial } = Astro.props;
+const rel = ind.summary === 'change';
+
+const W = 860, H = 380;
+const M = { top: 16, right: 110, bottom: 40, left: 64 };
+const maxYears = Math.max(8, ...trajectories.map((t) => t.points.at(-1)![0]));
+const x = (t: number) => M.left + ((t + 0.5) / (maxYears + 0.5)) * (W - M.left - M.right);
+
+const values = trajectories.flatMap((t) => t.points.map((p) => p[1]));
+let lo = Math.min(...values, rel ? 0 : Infinity), hi = Math.max(...values, rel ? 0 : -Infinity);
+const span = hi - lo || 1;
+const raw = span / 5, pow = 10 ** Math.floor(Math.log10(raw)), f = raw / pow;
+const step = (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * pow;
+lo = Math.floor((lo - span * 0.04) / step) * step;
+hi = Math.ceil((hi + span * 0.04) / step) * step;
+const y = (v: number) => M.top + (1 - (v - lo) / (hi - lo)) * (H - M.top - M.bottom);
+const yTicks: number[] = [];
+for (let v = lo; v <= hi + step / 2; v += step) yTicks.push(+v.toFixed(10));
+const tick = (v: number) => {
+  const decimals = step < 1 ? 1 : 0;
+  if (ind.unit === '$' && Math.abs(v) >= 1000) return `${v < 0 ? '−' : rel && v > 0 ? '+' : ''}$${Math.abs(v / 1000).toFixed(0)}k`;
+  return formatValue(v, ind, { decimals, signed: rel }).replace(/ .*/, '').replace(/pts$/, '');
+};
+
+const nameOf = Object.fromEntries(presidents.map((p) => [p.slug, p.name]));
+// Short line labels that still tell two terms of one president apart.
+const yy = (d: string) => `’${d.slice(2, 4)}`;
+const labelOf = Object.fromEntries(presidents.map((p) => [p.slug, `${p.short} ${yy(p.start)}–${p.end ? yy(p.end) : ' (so far)'}`]));
+const lines = trajectories.map((t) => ({
+  ...t,
+  d: t.points.map(([tx, v], i) => `${i ? 'L' : 'M'}${x(tx).toFixed(1)},${y(v).toFixed(1)}`).join(''),
+  end: t.points.at(-1)!,
+  name: nameOf[t.slug],
+  label: labelOf[t.slug],
+}));
+const slotOf = (slug: string) => initial.indexOf(slug) + 1;
+---
+<div class="overlay" data-initial={JSON.stringify(initial)}>
+  <fieldset class="picks">
+    <legend class="small muted">Highlight up to three terms</legend>
+    {lines.map((l) => (
+      <label class:list={['pick', slotOf(l.slug) && `hl s${slotOf(l.slug)}`]} data-slug={l.slug}>
+        <input type="checkbox" value={l.slug} checked={slotOf(l.slug) > 0} />
+        <span class="swatch"></span>{l.name}
+      </label>
+    ))}
+  </fieldset>
+  <figure class="overlay-chart">
+    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`${ind.name} by years since inauguration, every term from ${lines[0]?.name} on`}>
+      {yTicks.map((v) => (
+        <g>
+          <line class="grid" x1={M.left} x2={W - M.right} y1={y(v)} y2={y(v)} />
+          <text class="tick" x={M.left - 6} y={y(v) + 4} text-anchor="end">{tick(v)}</text>
+        </g>
+      ))}
+      {rel && <line class="zero" x1={M.left} x2={W - M.right} y1={y(0)} y2={y(0)} />}
+      <line class="axis" x1={M.left} x2={W - M.right} y1={H - M.bottom} y2={H - M.bottom} />
+      <line class="inaug" x1={x(0)} x2={x(0)} y1={M.top} y2={H - M.bottom} />
+      <line class="inaug" x1={x(4)} x2={x(4)} y1={M.top} y2={H - M.bottom} />
+      {Array.from({ length: Math.floor(maxYears) + 1 }, (_, i) => (
+        <text class="tick" x={x(i)} y={H - M.bottom + 16} text-anchor="middle">{i === 0 ? 'Inauguration' : i}</text>
+      ))}
+      <text class="tick" x={(M.left + W - M.right) / 2} y={H - 4} text-anchor="middle">Years in office</text>
+
+      {lines.map((l) => (
+        <g class:list={['term', slotOf(l.slug) && `hl s${slotOf(l.slug)}`]} data-slug={l.slug}>
+          <path d={l.d}><title>{l.name}</title></path>
+          <text class="end-label" x={x(l.end[0]) + 6} y={y(l.end[1]) + 4}>{l.label}</text>
+        </g>
+      ))}
+    </svg>
+  </figure>
+  <p class="small muted">
+    {rel
+      ? `Change since the last full ${ind.frequency === 'annual' ? 'year' : ind.frequency === 'quarterly' ? 'quarter' : 'month'} before inauguration, so every term starts at zero.`
+      : 'Actual values during each term (this is a rate, so it is compared directly rather than as a change).'}
+    {' '}Second terms continue past year 4.
+  </p>
+</div>
+
+<script>
+  for (const root of document.querySelectorAll<HTMLElement>('.overlay')) {
+    // Slot = color. A term keeps its slot while selected, so colors never
+    // reshuffle when another term is added or removed.
+    const slots: (string | null)[] = [null, null, null];
+    JSON.parse(root.dataset.initial!).forEach((s: string, i: number) => (slots[i] = s));
+    const order: string[] = slots.filter(Boolean) as string[];
+    const render = () => {
+      for (const el of root.querySelectorAll<HTMLElement | SVGElement>('[data-slug]')) {
+        const slot = slots.indexOf(el.dataset.slug!);
+        el.classList.remove('s1', 's2', 's3', 'hl');
+        if (slot >= 0) el.classList.add(`s${slot + 1}`, 'hl');
+        const box = el.querySelector('input');
+        if (box) box.checked = slot >= 0;
+      }
+      // Highlighted lines last so they draw on top.
+      const svg = root.querySelector('svg')!;
+      for (const g of svg.querySelectorAll('g.term.hl')) svg.appendChild(g);
+    };
+    root.addEventListener('change', (e) => {
+      const box = e.target as HTMLInputElement;
+      const slug = box.value;
+      if (box.checked) {
+        let free = slots.indexOf(null);
+        if (free < 0) {
+          // Replace the longest-selected term.
+          const oldest = order.shift()!;
+          free = slots.indexOf(oldest);
+        }
+        slots[free] = slug;
+        order.push(slug);
+      } else {
+        slots[slots.indexOf(slug)] = null;
+        order.splice(order.indexOf(slug), 1);
+      }
+      render();
+    });
+    render();
+  }
+</script>
+
+<style>
+  .picks { border: 0; padding: 0; margin: 0 0 12px; display: flex; flex-wrap: wrap; gap: 6px 8px; }
+  .picks legend { padding: 0; margin-bottom: 6px; }
+  .pick {
+    display: inline-flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;
+    border: 1px solid var(--border); border-radius: 999px; padding: 4px 10px; background: var(--surface);
+  }
+  .pick input { position: absolute; opacity: 0; pointer-events: none; }
+  .pick:has(input:focus-visible) { outline: 2px solid var(--series-1); outline-offset: 2px; }
+  .swatch { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--text-muted); }
+  .pick.s1 .swatch { background: var(--cat-1); border-color: var(--cat-1); }
+  .pick.s2 .swatch { background: var(--cat-2); border-color: var(--cat-2); }
+  .pick.s3 .swatch { background: var(--cat-3); border-color: var(--cat-3); }
+  .pick.hl { border-color: var(--text-secondary); color: var(--text-primary); font-weight: 600; }
+
+  .overlay-chart { margin: 0; }
+  svg { display: block; width: 100%; height: auto; overflow: visible; font: 11px var(--font); font-variant-numeric: tabular-nums; }
+  .grid { stroke: var(--grid); }
+  .zero { stroke: var(--baseline); stroke-width: 1.5; }
+  .axis { stroke: var(--baseline); }
+  .inaug { stroke: var(--baseline); stroke-dasharray: 2 3; }
+  .tick { fill: var(--text-muted); }
+  .term path { fill: none; stroke: var(--context-line); stroke-width: 1.25; stroke-linejoin: round; }
+  .term .end-label { display: none; fill: var(--text-secondary); font-size: 12px; }
+  .term.hl path { stroke-width: 2.5; }
+  .term.hl .end-label { display: block; }
+  .term.s1 path { stroke: var(--cat-1); }
+  .term.s2 path { stroke: var(--cat-2); }
+  .term.s3 path { stroke: var(--cat-3); }
+</style>

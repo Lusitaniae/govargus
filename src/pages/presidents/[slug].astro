@@ -50,7 +50,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
                 <div><dt>4 years before</dt><dd><TermStatView ind={ind} stat={stat} part="before" /></dd></div>
               </dl>
               {hasData
-                ? <LineChart indicator={ind} points={s.points} from={from} to={to} size="card" highlight={p.slug} />
+                ? <LineChart indicator={ind} points={s.points} from={from} to={to} size="card" highlight={p.slug} provisionalFrom={s.provisionalFrom} />
                 : <p class="muted small">Series starts after this term.</p>}
             </article>
           );

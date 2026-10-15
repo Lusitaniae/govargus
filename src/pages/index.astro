@@ -26,9 +26,9 @@ const current = presidentAt(new Date().toISOString().slice(0, 10));
             <article class="card">
               <a class="card-head" href={`${base}/indicators/${ind.id}`}>
                 <h3>{ind.name}</h3>
-                <p><span class="value">{formatValue(value, ind)}</span> <span class="muted small">{formatPeriod(date, ind.frequency)}</span></p>
+                <p><span class="value">{formatValue(value, ind)}</span> <span class="muted small">{formatPeriod(date, ind.frequency)}{s.provisionalFrom && ', provisional'}</span></p>
               </a>
-              <LineChart indicator={ind} points={s.points} from={chartFrom(s.points)} size="card" />
+              <LineChart indicator={ind} points={s.points} from={chartFrom(s.points)} size="card" provisionalFrom={s.provisionalFrom} />
             </article>
           );
         })}

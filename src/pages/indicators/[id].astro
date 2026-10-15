@@ -26,10 +26,10 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   <p class="small muted">{group.name}</p>
   <h1>{ind.name}</h1>
   <p class="lede">{ind.description}</p>
-  <p><span class="value">{formatValue(lastValue, ind)}</span> <span class="muted">latest, {formatPeriod(lastDate, ind.frequency)}</span></p>
+  <p><span class="value">{formatValue(lastValue, ind)}</span> <span class="muted">latest, {formatPeriod(lastDate, ind.frequency)}{series.provisionalFrom && ' (provisional)'}</span></p>
 
   <div class="panel">
-    <LineChart indicator={ind} points={series.points} from={chartFrom(series.points)} />
+    <LineChart indicator={ind} points={series.points} from={chartFrom(series.points)} provisionalFrom={series.provisionalFrom} />
   </div>
   <p class="small muted">
     Source: {ind.source.publisher}, via <a href={ind.source.page}>{ind.source.label}</a>.{' '}
