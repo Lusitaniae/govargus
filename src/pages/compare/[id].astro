@@ -3,6 +3,7 @@ import Layout from '../../layouts/Layout.astro';
 import OverlayChart from '../../components/OverlayChart.astro';
 import TermStatView from '../../components/TermStat.astro';
 import { indicators, presidents, seriesFor, termStat, termTrajectory, termEnd, CHART_FROM } from '../../lib/data';
+import { compareTitle, compareDescription, breadcrumbs } from '../../lib/seo';
 
 export function getStaticPaths() {
   return indicators.map((ind) => ({ params: { id: ind.id } }));
@@ -16,12 +17,17 @@ const trajectories = terms.map((p) => termTrajectory(ind, series.points, p)).fil
 const initial = trajectories.slice(-3).map((t) => t.slug).reverse();
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
-<Layout title={`Compare: ${ind.name}`} description={`${ind.name} through each presidential term, lined up by years in office.`}>
+<Layout
+  title={compareTitle(ind)}
+  description={compareDescription(ind, series)}
+  image={`/og/${ind.id}.png`}
+  schema={breadcrumbs([['Compare', '/compare'], [ind.name, `/compare/${ind.id}`]])}
+>
   <p class="small"><a href={`${base}/compare`}>Compare</a></p>
   <h1>{ind.name}, term by term</h1>
   <p class="lede">
     Every term lined up from its inauguration. Context is everything: compare the start of a term with the trend it inherited
-    and with what was happening in the world (recessions, pandemics), all of which are on the <a href={`${base}/indicators/${ind.id}`}>full chart</a>.
+    and with what was happening in the world (recessions, pandemics), all of which are on the <a href={`${base}/indicators/${ind.id}`}>full {ind.name.toLowerCase()} chart</a>.
   </p>
 
   <nav class="switch" aria-label="Other indicators">

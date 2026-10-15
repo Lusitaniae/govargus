@@ -5,6 +5,7 @@ import {
   groups, indicators, presidents, seriesFor, chartFrom, formatValue, formatPeriod, presidentAt,
   termSoFar, formatDate, addYears, today,
 } from '../lib/data';
+import { abs } from '../lib/seo';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const current = presidentAt(today()) ?? presidents.at(-1)!;
 const prev = presidents[presidents.indexOf(current) - 1];
@@ -12,7 +13,10 @@ const prev = presidents[presidents.indexOf(current) - 1];
 const shortFrom = `${addYears(prev.start, -1).slice(0, 4)}-01-01`;
 const days = Math.floor((Date.parse(today()) - Date.parse(current.start)) / 864e5);
 ---
-<Layout>
+<Layout
+  title="US economy, crime and health by president"
+  schema={{ '@context': 'https://schema.org', '@type': 'WebSite', name: 'Govargus', url: abs('/') }}
+>
   <div class="home">
     <h1>How is the United States doing?</h1>
     <p class="lede">

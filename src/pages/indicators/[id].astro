@@ -6,6 +6,7 @@ import {
   indicators, groups, presidents, events, seriesFor, termStat, CHART_FROM, chartFrom,
   formatValue, formatPeriod, formatDate, KIND_LABEL, termEnd,
 } from '../../lib/data';
+import { indicatorTitle, indicatorDescription, dataset, breadcrumbs } from '../../lib/seo';
 
 export function getStaticPaths() {
   return indicators.map((ind) => ({ params: { id: ind.id } }));
@@ -22,7 +23,12 @@ const rows = presidents
   .reverse();
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
-<Layout title={ind.name} description={ind.description}>
+<Layout
+  title={indicatorTitle(ind, series)}
+  description={indicatorDescription(ind, series)}
+  image={`/og/${ind.id}.png`}
+  schema={[dataset(ind, series), breadcrumbs([['Indicators', '/'], [ind.name, `/indicators/${ind.id}`]])]}
+>
   <p class="small muted">{group.name}</p>
   <h1>{ind.name}</h1>
   <p class="lede">{ind.description}</p>
@@ -37,6 +43,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   </p>
 
   <h2>By presidential term</h2>
+  <p class="small"><a href={`${base}/compare/${ind.id}`}>{ind.name}, term by term</a>: every term lined up from inauguration on one chart.</p>
   <p class="lede small">
     {ind.summary === 'average'
       ? 'Average during each term, next to the average over the four years before it.'

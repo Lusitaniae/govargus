@@ -30,7 +30,10 @@ const byParty = grid.map(({ ind, cells }) => ({
 const signed = (v: number, ind: (typeof indicators)[number]) =>
   ind.summary === 'average' ? `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(ind.decimals || 1)}${ind.unit.startsWith('%') ? ' pts' : ''}` : formatHeadline(v, ind);
 ---
-<Layout title="Compare presidents">
+<Layout
+  title="Compare presidents on jobs, inflation, crime and more"
+  description={`Every presidential term since 1980 side by side on ${indicators.length} official indicators, with averages by party and the trend each president inherited.`}
+>
   <h1>Compare presidents</h1>
   <p class="lede">
     Every indicator against every term. For levels (unemployment, debt, income) each cell is the change per year in office;

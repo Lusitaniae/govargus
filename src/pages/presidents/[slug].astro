@@ -7,6 +7,7 @@ import {
   formatDate, KIND_LABEL, CHART_FROM, today,
 } from '../../lib/data';
 import { policyRecord, coverage } from '../../lib/policy';
+import { presidentTitle, presidentDescription, breadcrumbs } from '../../lib/seo';
 
 export function getStaticPaths() {
   return presidents.filter((p) => termEnd(p) > CHART_FROM).map((p) => ({ params: { slug: p.slug } }));
@@ -24,7 +25,11 @@ const termEvents = events.filter((e) => e.date >= p.start && e.date < end);
 const rec = policyRecord(p);
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
-<Layout title={p.name} description={`US indicators during ${p.name}'s presidency, ${p.start.slice(0, 4)}–${p.end?.slice(0, 4) ?? 'present'}.`}>
+<Layout
+  title={presidentTitle(p)}
+  description={presidentDescription(p)}
+  schema={breadcrumbs([['Presidents', '/presidents'], [p.name, `/presidents/${p.slug}`]])}
+>
   <p class="small"><a href={`${base}/presidents`}>Presidents</a></p>
   <h1>{p.name}</h1>
   <p class="lede">{p.party} · {formatDate(p.start)} – {p.end ? formatDate(p.end) : 'present'}</p>

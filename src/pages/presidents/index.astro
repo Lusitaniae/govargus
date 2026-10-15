@@ -5,7 +5,10 @@ import { policyRecord } from '../../lib/policy';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const list = presidents.filter((p) => termEnd(p) > CHART_FROM).reverse();
 ---
-<Layout title="Presidents">
+<Layout
+  title="US presidents compared on official data since 1980"
+  description="Every president since Carter on jobs, inflation, income, debt, crime and health: where each stood at inauguration, where it went, and the trend inherited."
+>
   <h1>Presidents</h1>
   <p class="lede">Each page shows every indicator around one term: what it was when they took office, where it went, and what it was already doing beforehand.</p>
   <ul class="list">

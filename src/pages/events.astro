@@ -10,7 +10,10 @@ const lawPoints = perYear(laws.filter((l) => !l.ceremonial).map((l) => l.date), 
 const orderPoints = perYear(executiveOrders.map((o) => o.date), coverage.orders);
 const thisYear = today().slice(0, 4);
 ---
-<Layout title="Policy timeline">
+<Layout
+  title="Laws, executive orders and policy events by president"
+  description="Every public law and executive order counted by year and administration, plus the laws, trade actions, Fed decisions and shocks that moved US indicators."
+>
   <h1>Policy timeline</h1>
   <p class="lede">
     What each administration actually signed, counted in full, followed by a hand-picked list of the laws, trade actions,
