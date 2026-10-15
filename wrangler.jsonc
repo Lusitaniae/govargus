@@ -1,0 +1,11 @@
+// Cloudflare Workers static-assets deploy. The site is fully static: Cloudflare
+// serves dist/ directly, with no Worker code. "name" must match the Worker's
+// name in the Cloudflare dashboard.
+{
+  "name": "govargus",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page"
+  }
+}

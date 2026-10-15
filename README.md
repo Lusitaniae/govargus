@@ -41,4 +41,12 @@ Only Congress.gov needs one: a free [api.data.gov key](https://api.data.gov/sign
 
 ## Hosting
 
-Intended for Cloudflare Pages, connected to this repo: build command `npx astro build`, output directory `dist`, environment variable `NODE_VERSION=24`. Every push to `master`, including the weekly data commits, triggers a rebuild.
+Cloudflare Workers (static assets), connected to this repo. Config is in `wrangler.jsonc`; Node 24 comes from `.node-version`.
+
+| Setting | Value |
+|---|---|
+| Build command | `npx astro build` |
+| Deploy command | `npx wrangler deploy` |
+| Non-production branch deploy command | `npx wrangler versions upload` |
+
+Every push to `master`, including the weekly data commits, triggers a rebuild and deploy.
