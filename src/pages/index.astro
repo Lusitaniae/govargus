@@ -37,6 +37,10 @@ const days = Math.floor((Date.parse(today()) - Date.parse(current.start)) / 864e
             const [date, value] = s.points.at(-1)!;
             const soFar = termSoFar(ind, s.points, current, prev);
             const fmt = (v: number) => soFar!.kind === 'change' ? formatValue(v, ind, { signed: true }) : formatValue(v, ind);
+            // Neutral arrows: whether up is good depends on the indicator, and nothing here is scored.
+            const arrow = (v: number, text: string) => Math.abs(Number(v.toFixed(1))) === 0 ? 'no change' : `${v > 0 ? '▲' : '▼'}\u00a0${text}`;
+            const pctText = (v: number) => `${Math.abs(v).toFixed(1)}%`;
+            const ptsText = (v: number) => formatValue(Math.abs(v), ind, { signed: true }).replace(/^\+/, '');
             const shortStart = s.points[0][0] > shortFrom ? s.points[0][0] : shortFrom;
             return (
               <article class="card">
@@ -47,8 +51,18 @@ const days = Math.floor((Date.parse(today()) - Date.parse(current.start)) / 864e
                 <p class="so-far small">
                   {soFar ? (
                     <>
-                      <span>{soFar.kind === 'change' ? <><b>{fmt(soFar.value)}</b> since {monthYear(current.start)}</> : <>avg <b>{fmt(soFar.value)}</b> this term</>}</span>
-                      {soFar.prev !== undefined && <span class="muted">{prev.short} at the same point: {fmt(soFar.prev)}</span>}
+                      {soFar.kind === 'change' ? (
+                        <span>
+                          <b class="delta">{soFar.pct !== undefined ? arrow(soFar.pct, pctText(soFar.pct)) : arrow(soFar.value, ptsText(soFar.value))}</b>
+                          {' '}since {monthYear(current.start)}
+                          {soFar.pct !== undefined && <span class="muted abs"> ({fmt(soFar.value)})</span>}
+                        </span>
+                      ) : <span>avg <b>{fmt(soFar.value)}</b> this term</span>}
+                      {soFar.prev !== undefined && (
+                        <span class="muted">{prev.short} at the same point: {soFar.kind === 'change'
+                          ? (soFar.prevPct !== undefined ? arrow(soFar.prevPct, pctText(soFar.prevPct)) : arrow(soFar.prev, ptsText(soFar.prev)))
+                          : fmt(soFar.prev)}</span>
+                      )}
                     </>
                   ) : (
                     <span class="muted">No data yet for this term (published {ind.frequency === 'annual' ? 'yearly, with a lag' : 'with a lag'})</span>
@@ -95,7 +109,9 @@ const days = Math.floor((Date.parse(today()) - Date.parse(current.start)) / 864e
   .card-head p { margin: 2px 0 0; }
   .value { font-size: 22px; font-weight: 600; }
   .so-far { margin: 0 0 6px; }
-  .so-far span { display: block; }
+  .so-far > span { display: block; }
+  .so-far .abs { display: inline; }
+  .delta { display: inline-block; font-size: 13px; padding: 1px 7px; border-radius: 999px; background: var(--band-hl); color: var(--text-primary); font-variant-numeric: tabular-nums; }
   .short, .long { margin-top: auto; }
   .long { display: none; }
   .home:has(#r-long:checked) .long { display: block; }

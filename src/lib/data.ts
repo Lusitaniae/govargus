@@ -206,6 +206,9 @@ export interface SoFar {
   value: number;
   /** The previous president's figure at the same point in their term. */
   prev?: number;
+  /** 'change' only: relative changes in %, for indicators that aren't already percentages. */
+  pct?: number;
+  prevPct?: number;
 }
 
 /**
@@ -227,13 +230,19 @@ export function termSoFar(ind: Indicator, points: Point[], p: President, prev?: 
 
   const base = valueAsOf(points, p.start, ind.frequency);
   if (!base) return null;
-  let prevChange: number | undefined;
+  // A percent change of a percentage ("unemployment +2%") reads as points; keep those in points.
+  const relative = !ind.unit.startsWith('%') && base[1] !== 0;
+  let prevChange: number | undefined, prevPct: number | undefined;
   if (prev) {
     const pb = valueAsOf(points, prev.start, ind.frequency);
     const pa = valueAsOf(points, samePoint(prev.start), ind.frequency);
-    if (pb && pa && pa[0] > pb[0]) prevChange = pa[1] - pb[1];
+    if (pb && pa && pa[0] > pb[0]) {
+      prevChange = pa[1] - pb[1];
+      if (relative) prevPct = (prevChange / Math.abs(pb[1])) * 100;
+    }
   }
-  return { kind: 'change', value: points.at(-1)![1] - base[1], prev: prevChange };
+  const value = points.at(-1)![1] - base[1];
+  return { kind: 'change', value, prev: prevChange, pct: relative ? (value / Math.abs(base[1])) * 100 : undefined, prevPct };
 }
 
 export const monthYear = (date: string) => `${MONTHS[Number(date.slice(5, 7)) - 1]} ${date.slice(0, 4)}`;
