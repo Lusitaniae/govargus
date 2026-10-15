@@ -9,6 +9,7 @@ import {
 import { policyRecord } from './policy';
 import { abs, indicatorTitle, presidentTitle, termYears } from './seo';
 import { extremes, termRange, currentTerm } from './summary';
+import { termPath, termTitle, termLead, termYearsTable, termExtremes, termEvents, rankedTerms } from './term';
 
 export const presidentsShown = () => presidents.filter((p) => termEnd(p) > CHART_FROM);
 
@@ -103,6 +104,47 @@ export function presidentMarkdown(p: President): string {
       '## Tracked events during the term',
       '',
       ...termEvents.map((e) => `- ${formatDate(e.date)}, ${KIND_LABEL[e.kind].toLowerCase()}: ${e.title}. ${e.summary}`),
+    ] : []),
+    '',
+  ].join('\n');
+}
+
+export function termMarkdown(p: President, ind: Indicator): string {
+  const series = seriesFor(ind.id);
+  const { hi, lo } = termExtremes(ind, p);
+  const evs = termEvents(ind, p);
+  const avg = ind.summary === 'average';
+  return [
+    `# ${termTitle(p, ind)}`,
+    '',
+    `Source page: ${abs(termPath(p, ind))}`,
+    '',
+    termLead(p, ind),
+    '',
+    `${ind.name}: ${ind.description} Source: ${ind.source.publisher}, via ${ind.source.label} (${ind.source.page}), fetched ${formatDate(series.fetched)}.`,
+    '',
+    '## Year by year',
+    '',
+    `Highest reading during the term: ${formatValue(hi[1], ind)} in ${formatPeriod(hi[0], ind.frequency)}. Lowest: ${formatValue(lo[1], ind)} in ${formatPeriod(lo[0], ind.frequency)}.`,
+    '',
+    avg ? '| Year | Average |' : '| Period | Value | Change |',
+    avg ? '| --- | --- |' : '| --- | --- | --- |',
+    ...termYearsTable(ind, p).map((r) => avg
+      ? `| ${r.label} | ${formatValue(r.value, ind)} |`
+      : `| ${r.label} | ${formatValue(r.value, ind)} | ${r.change === undefined ? '' : formatValue(r.change, ind, { signed: true })} |`),
+    '',
+    '## Every term',
+    '',
+    `${avg ? 'Sorted by average, highest first.' : 'Sorted by yearly change, fastest rise first.'} ${caveat}`,
+    '',
+    '| President | Term | During term | 4 years before |',
+    '| --- | --- | --- | --- |',
+    ...rankedTerms(ind).map(({ p: q, stat: s }) => `| ${cell(q.name)} | ${termYears(q)} | ${cell(stat(ind, s, 'during'))} | ${cell(stat(ind, s, 'before'))} |`),
+    ...(evs.length ? [
+      '',
+      '## Events during the term',
+      '',
+      ...evs.map((e) => `- ${formatDate(e.date)}, ${KIND_LABEL[e.kind].toLowerCase()}: ${e.title}. ${e.summary}`),
     ] : []),
     '',
   ].join('\n');

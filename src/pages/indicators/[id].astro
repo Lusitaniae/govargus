@@ -8,6 +8,7 @@ import {
 } from '../../lib/data';
 import { indicatorTitle, indicatorDescription, dataset, breadcrumbs } from '../../lib/seo';
 import { extremes, termRange, currentTerm } from '../../lib/summary';
+import { hasTermPage, termPath } from '../../lib/term';
 
 export function getStaticPaths() {
   return indicators.map((ind) => ({ params: { id: ind.id } }));
@@ -63,7 +64,7 @@ const related = indicators.filter((i) => i.group === ind.group && i.id !== ind.i
       <tbody>
         {rows.map(({ p, stat }) => (
           <tr>
-            <td><a href={`${base}/presidents/${p.slug}`}>{p.name}</a><br /><span class="muted small">{p.start.slice(0, 4)}–{p.end?.slice(0, 4) ?? 'now'}</span></td>
+            <td><a href={`${base}${hasTermPage(p, ind) ? termPath(p, ind) : `/presidents/${p.slug}`}`}>{p.name}</a><br /><span class="muted small">{p.start.slice(0, 4)}–{p.end?.slice(0, 4) ?? 'now'}</span></td>
             <td><TermStatView ind={ind} stat={stat} part="during" /></td>
             <td><TermStatView ind={ind} stat={stat} part="before" /></td>
           </tr>

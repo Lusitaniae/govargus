@@ -205,6 +205,7 @@
       "id": "debt",
       "group": "fiscal",
       "name": "Federal debt (% of GDP)",
+      "phrase": "federal debt as a share of GDP",
       "unit": "% of GDP",
       "decimals": 1,
       "source": {

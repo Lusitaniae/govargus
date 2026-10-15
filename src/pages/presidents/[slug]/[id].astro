@@ -1,0 +1,137 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import LineChart from '../../../components/LineChart.astro';
+import TermStatView from '../../../components/TermStat.astro';
+import {
+  presidents, indicators, seriesFor, termEnd, addYears, today, formatValue, formatPeriod, formatDate,
+  KIND_LABEL,
+} from '../../../lib/data';
+import { breadcrumbs, termYears } from '../../../lib/seo';
+import {
+  TERM_PAGES, termPages, termPath, termHeading, termTitle, termDescription, termLead, termYearsTable,
+  termExtremes, termEvents, rankedTerms, hasTermPage,
+} from '../../../lib/term';
+
+export function getStaticPaths() {
+  return termPages().map(({ p, ind }) => ({ params: { slug: p.slug, id: ind.id } }));
+}
+
+const p = presidents.find((x) => x.slug === Astro.params.slug)!;
+const ind = indicators.find((i) => i.id === Astro.params.id)!;
+const series = seriesFor(ind.id);
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+// Same window as the president page: the four years before the term to two years after.
+const from = addYears(p.start, -4);
+const toCandidate = addYears(termEnd(p), 2);
+const to = toCandidate > today() ? today() : toCandidate;
+const years = termYearsTable(ind, p);
+const { hi, lo } = termExtremes(ind, p);
+const evs = termEvents(ind, p);
+const ranked = rankedTerms(ind);
+const signed = (v: number) => formatValue(v, ind, { signed: true });
+const others = Object.keys(TERM_PAGES)
+  .map((id) => indicators.find((i) => i.id === id)!)
+  .filter((i) => i.id !== ind.id && hasTermPage(p, i));
+const label = TERM_PAGES[ind.id];
+---
+<Layout
+  title={termTitle(p, ind)}
+  description={termDescription(p, ind)}
+  image={`/og/${ind.id}.png`}
+  markdown={`${termPath(p, ind)}.md`}
+  schema={breadcrumbs([['Presidents', '/presidents'], [p.name, `/presidents/${p.slug}`], [label, termPath(p, ind)]])}
+>
+  <p class="small"><a href={`${base}/presidents`}>Presidents</a> › <a href={`${base}/presidents/${p.slug}`}>{p.name}</a></p>
+  <h1>{termHeading(p, ind)}</h1>
+  <p class="lede">{ind.name} · {p.party} · {formatDate(p.start)} – {p.end ? formatDate(p.end) : 'present'}</p>
+  <p class="answer">{termLead(p, ind)}</p>
+
+  <div class="panel">
+    <LineChart indicator={ind} points={series.points} from={from} to={to} highlight={p.slug} provisionalFrom={series.provisionalFrom} />
+  </div>
+  <p class="small muted">
+    {ind.description} Source: {ind.source.publisher}, via <a href={ind.source.page}>{ind.source.label}</a>.{' '}
+    {ind.frequency[0].toUpperCase() + ind.frequency.slice(1)} data, fetched {formatDate(series.fetched)}.
+    The chart runs from four years before the term to two years after it.
+  </p>
+
+  <h2>{label} under {p.short}, year by year</h2>
+  <p>
+    Highest reading during the term: <b>{formatValue(hi[1], ind)}</b> in {formatPeriod(hi[0], ind.frequency)}.
+    Lowest: <b>{formatValue(lo[1], ind)}</b> in {formatPeriod(lo[0], ind.frequency)}.
+  </p>
+  <div class="table-scroll">
+    <table class="data">
+      <thead>
+        {ind.summary === 'average'
+          ? <tr><th>Year</th><th>Average</th></tr>
+          : <tr><th>Period</th><th>Value</th><th>Change</th></tr>}
+      </thead>
+      <tbody>
+        {years.map((r) => (
+          <tr>
+            <td>{r.label}</td>
+            <td>{formatValue(r.value, ind)}</td>
+            {ind.summary === 'change' && <td>{r.change === undefined ? '' : signed(r.change)}</td>}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  <h2>{label} under every president</h2>
+  <p class="small lede">
+    {ind.summary === 'average'
+      ? 'Terms sorted by their average, highest first, each next to the average over the four years before it.'
+      : 'Terms sorted by yearly change, fastest rise first, each next to the trend over the four years before it.'}
+    {' '}A term's first year mostly reflects the previous administration's policies, and Congress, the Fed and the
+    world economy move this number too. <a href={`${base}/about`}>Why nothing here is a score</a>.
+  </p>
+  <div class="table-scroll">
+    <table class="data">
+      <thead><tr><th>President</th><th>During term</th><th>4 years before</th></tr></thead>
+      <tbody>
+        {ranked.map(({ p: q, stat }) => (
+          <tr class:list={{ current: q.slug === p.slug }}>
+            <td>
+              {q.slug === p.slug ? <b>{q.name}</b> : <a href={`${base}${termPath(q, ind)}`}>{q.name}</a>}
+              <br /><span class="muted small">{termYears(q)}</span>
+            </td>
+            <td><TermStatView ind={ind} stat={stat} part="during" /></td>
+            <td><TermStatView ind={ind} stat={stat} part="before" /></td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  <p class="small"><a href={`${base}/compare/${ind.id}`}>Every term lined up from inauguration day on one chart</a> · <a href={`${base}/indicators/${ind.id}`}>{ind.name.replace(/\s*\(.*\)$/, '')} by president since 1980</a></p>
+
+  {evs.length > 0 && (
+    <>
+      <h2>Events during the term that bear on {label.toLowerCase()}</h2>
+      <ol class="events">
+        {evs.map((e) => (
+          <li>
+            <span class="muted small">{formatDate(e.date)}</span> <span class="tag">{KIND_LABEL[e.kind]}</span>
+            <div><a href={e.link}>{e.title}</a>. {e.summary}</div>
+          </li>
+        ))}
+      </ol>
+    </>
+  )}
+
+  <h2>More under {p.name}</h2>
+  <ul class="related">
+    {others.map((i) => <li><a href={`${base}${termPath(p, i)}`}>{termHeading(p, i)}</a></li>)}
+    <li><a href={`${base}/presidents/${p.slug}`}>Economy, crime and health under {p.name}: every indicator</a></li>
+  </ul>
+</Layout>
+
+<style>
+  .answer { max-width: 68ch; font-size: 17px; }
+  tr.current td { background: var(--band-hl); }
+  .related { padding-left: 20px; }
+  .related li { margin: 4px 0; }
+  .events { list-style: none; padding: 0; margin: 0; }
+  .events li { padding: 10px 0; border-bottom: 1px solid var(--grid); }
+</style>

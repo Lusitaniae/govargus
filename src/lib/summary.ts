@@ -9,7 +9,7 @@ import {
 import { shortName } from './seo';
 
 /** Sentence subject: 'the unemployment rate', or the indicator's own `phrase` where that reads wrong. */
-const subject = (ind: Indicator) => ind.phrase ?? `the ${shortName(ind)}`;
+export const subject = (ind: Indicator) => ind.phrase ?? `the ${shortName(ind)}`;
 
 // A period belongs to whoever held office for most of it: 2025 is Trump's, though it starts under Biden.
 const at = (d: string, ind: Indicator) => {

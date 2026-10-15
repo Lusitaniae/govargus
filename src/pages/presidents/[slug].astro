@@ -8,6 +8,7 @@ import {
 } from '../../lib/data';
 import { policyRecord, coverage } from '../../lib/policy';
 import { presidentTitle, presidentHeading, presidentDescription, breadcrumbs } from '../../lib/seo';
+import { hasTermPage, termPath } from '../../lib/term';
 
 export function getStaticPaths() {
   return presidents.filter((p) => termEnd(p) > CHART_FROM).map((p) => ({ params: { slug: p.slug } }));
@@ -51,7 +52,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
           const hasData = s.points.some(([d]) => d >= from && d <= to);
           return (
             <article class="card">
-              <a href={`${base}/indicators/${ind.id}`}><h3>{ind.name}</h3></a>
+              <a href={`${base}${hasTermPage(p, ind) ? termPath(p, ind) : `/indicators/${ind.id}`}`}><h3>{ind.name}</h3></a>
               <dl>
                 <div><dt>During term</dt><dd><TermStatView ind={ind} stat={stat} part="during" /></dd></div>
                 <div><dt>4 years before</dt><dd><TermStatView ind={ind} stat={stat} part="before" /></dd></div>
