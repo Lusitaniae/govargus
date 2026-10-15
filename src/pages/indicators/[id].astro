@@ -31,6 +31,7 @@ const related = indicators.filter((i) => i.group === ind.group && i.id !== ind.i
   title={indicatorTitle(ind, series)}
   description={indicatorDescription(ind, series)}
   image={`/og/${ind.id}.png`}
+  markdown={`/indicators/${ind.id}.md`}
   schema={[dataset(ind, series), breadcrumbs([['Indicators', '/'], [ind.name, `/indicators/${ind.id}`]])]}
 >
   <p class="small muted">{group.name}</p>

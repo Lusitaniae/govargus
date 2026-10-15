@@ -10,6 +10,8 @@ interface Props {
   schema?: object | object[];
   /** Keep the page out of search results (the 404 page). */
   noindex?: boolean;
+  /** Site path of this page's Markdown version, for AI agents. */
+  markdown?: string;
 }
 const {
   title,
@@ -17,6 +19,7 @@ const {
   image = '/og/site.png',
   schema,
   noindex = false,
+  markdown,
 } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const path = cleanPath(Astro.url.pathname.replace(base, ''));
@@ -51,6 +54,7 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="sitemap" href={`${base}/sitemap.xml`} />
+    {markdown && <link rel="alternate" type="text/markdown" href={abs(markdown)} />}
     {schema && <script type="application/ld+json" set:html={JSON.stringify(schema)} />}
     <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
   </head>
