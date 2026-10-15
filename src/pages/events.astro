@@ -1,0 +1,77 @@
+---
+import Layout from '../layouts/Layout.astro';
+import LineChart from '../components/LineChart.astro';
+import { events, indicators, presidentAt, formatDate, KIND_LABEL, today } from '../lib/data';
+import { laws, executiveOrders, coverage, perYear, lawsIndicator, ordersIndicator } from '../lib/policy';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const nameOf = Object.fromEntries(indicators.map((i) => [i.id, i.name]));
+const list = events.slice().reverse();
+const lawPoints = perYear(laws.filter((l) => !l.ceremonial).map((l) => l.date), coverage.laws);
+const orderPoints = perYear(executiveOrders.map((o) => o.date), coverage.orders);
+const thisYear = today().slice(0, 4);
+---
+<Layout title="Policy timeline">
+  <h1>Policy timeline</h1>
+  <p class="lede">
+    What each administration actually signed, counted in full, followed by a hand-picked list of the laws, trade actions,
+    Fed decisions and shocks that most plausibly moved the indicators.
+  </p>
+
+  <h2>Everything signed, by year</h2>
+  <div class="counts">
+    {lawPoints.length > 0 && (
+      <section class="card">
+        <h3>Substantive public laws enacted</h3>
+        <p class="muted small">
+          {laws.filter((l) => !l.ceremonial).length.toLocaleString('en-US')} laws since {coverage.laws!.slice(0, 4)}, not counting
+          {' '}{laws.filter((l) => l.ceremonial).length.toLocaleString('en-US')} that only name, commemorate or appoint (a title-based heuristic).
+          The second year of each Congress usually passes more.
+        </p>
+        <LineChart indicator={lawsIndicator} points={lawPoints} from={lawPoints[0][0]} bars showRecessions={false} size="card" width={600} />
+      </section>
+    )}
+    {orderPoints.length > 0 && (
+      <section class="card">
+        <h3>Executive orders signed</h3>
+        <p class="muted small">
+          {executiveOrders.length.toLocaleString('en-US')} orders since {coverage.orders!.slice(0, 4)}, from the Federal Register.
+          Earlier orders aren't available in machine-readable form.
+        </p>
+        <LineChart indicator={ordersIndicator} points={orderPoints} from={orderPoints[0][0]} bars showRecessions={false} size="card" width={600} />
+      </section>
+    )}
+  </div>
+  <p class="small muted">{thisYear} is the year so far. Sources: <a href="https://www.congress.gov/">Congress.gov</a>, <a href="https://www.federalregister.gov/">Federal Register</a>. Full lists are on each president's page.</p>
+
+  <h2>Major events</h2>
+  <p class="lede small">Each event is tagged with the indicators it plausibly moved, and marked on those charts.</p>
+  <ol class="events">
+    {list.map((e) => {
+      const p = presidentAt(e.date);
+      return (
+        <li>
+          <div class="meta">
+            <span class="muted small">{formatDate(e.date)}</span>
+            <span class="tag">{KIND_LABEL[e.kind]}</span>
+            {p && <a class="small" href={`${base}/presidents/${p.slug}`}>{p.name}</a>}
+          </div>
+          <h3><a href={e.link}>{e.title}</a></h3>
+          <p>{e.summary}</p>
+          <p class="small muted">
+            Affects: {e.indicators.map((id, i) => <>{i > 0 && ', '}<a href={`${base}/indicators/${id}`}>{nameOf[id]}</a></>)}
+          </p>
+        </li>
+      );
+    })}
+  </ol>
+</Layout>
+
+<style>
+  .counts { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+  .counts p { margin: 4px 0 8px; }
+  .events { list-style: none; padding: 0; margin: 0; max-width: 760px; }
+  .events li { padding: 14px 0; border-bottom: 1px solid var(--grid); }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .events h3 { margin: 4px 0 2px; }
+  .events p { margin: 2px 0; }
+</style>

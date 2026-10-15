@@ -1,0 +1,80 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import LineChart from '../../components/LineChart.astro';
+import TermStatView from '../../components/TermStat.astro';
+import {
+  indicators, groups, presidents, events, seriesFor, termStat, CHART_FROM,
+  formatValue, formatPeriod, formatDate, KIND_LABEL, termEnd,
+} from '../../lib/data';
+
+export function getStaticPaths() {
+  return indicators.map((ind) => ({ params: { id: ind.id } }));
+}
+
+const ind = indicators.find((i) => i.id === Astro.params.id)!;
+const group = groups.find((g) => g.id === ind.group)!;
+const series = seriesFor(ind.id);
+const [lastDate, lastValue] = series.points.at(-1)!;
+const relevant = events.filter((e) => e.indicators.includes(ind.id) && e.date >= CHART_FROM);
+const rows = presidents
+  .filter((p) => termEnd(p) > CHART_FROM)
+  .map((p) => ({ p, stat: termStat(ind, series.points, p) }))
+  .reverse();
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+<Layout title={ind.name} description={ind.description}>
+  <p class="small muted">{group.name}</p>
+  <h1>{ind.name}</h1>
+  <p class="lede">{ind.description}</p>
+  <p><span class="value">{formatValue(lastValue, ind)}</span> <span class="muted">latest, {formatPeriod(lastDate, ind.frequency)}</span></p>
+
+  <div class="panel">
+    <LineChart indicator={ind} points={series.points} from={CHART_FROM} />
+  </div>
+  <p class="small muted">
+    Source: {ind.source.publisher}, via <a href={`https://fred.stlouisfed.org/series/${ind.source.series}`}>FRED {ind.source.series}</a>.{' '}
+    {ind.frequency[0].toUpperCase() + ind.frequency.slice(1)} data, fetched {formatDate(series.fetched)}.
+  </p>
+
+  <h2>By presidential term</h2>
+  <p class="lede small">
+    {ind.summary === 'average'
+      ? 'Average during each term, next to the average over the four years before it.'
+      : 'Value at the last full period before inauguration and at the end of the term, with the yearly rate of change. The second column is the rate of change over the four years before the term: the trend they inherited.'}
+    {' '}Remember the lag: a term's first year mostly reflects the previous one's policies.
+  </p>
+  <div class="table-scroll">
+    <table class="data">
+      <thead><tr><th>President</th><th>During term</th><th>4 years before</th></tr></thead>
+      <tbody>
+        {rows.map(({ p, stat }) => (
+          <tr>
+            <td><a href={`${base}/presidents/${p.slug}`}>{p.name}</a><br /><span class="muted small">{p.start.slice(0, 4)}–{p.end?.slice(0, 4) ?? 'now'}</span></td>
+            <td><TermStatView ind={ind} stat={stat} part="during" /></td>
+            <td><TermStatView ind={ind} stat={stat} part="before" /></td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  {relevant.length > 0 && (
+    <>
+      <h2>Events that bear on this indicator</h2>
+      <ol class="events">
+        {relevant.slice().reverse().map((e) => (
+          <li>
+            <span class="muted small">{formatDate(e.date)}</span> <span class="tag">{KIND_LABEL[e.kind]}</span>
+            <div><a href={e.link}>{e.title}</a>. {e.summary}</div>
+          </li>
+        ))}
+      </ol>
+    </>
+  )}
+</Layout>
+
+<style>
+  .value { font-size: 28px; font-weight: 600; }
+  .events { list-style: none; padding: 0; margin: 0; }
+  .events li { padding: 10px 0; border-bottom: 1px solid var(--grid); }
+</style>

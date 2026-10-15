@@ -1,0 +1,140 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import LineChart from '../../components/LineChart.astro';
+import TermStatView from '../../components/TermStat.astro';
+import {
+  presidents, groups, indicators, events, seriesFor, termStat, termEnd, addYears,
+  formatDate, KIND_LABEL, CHART_FROM, today,
+} from '../../lib/data';
+import { policyRecord, coverage } from '../../lib/policy';
+
+export function getStaticPaths() {
+  return presidents.filter((p) => termEnd(p) > CHART_FROM).map((p) => ({ params: { slug: p.slug } }));
+}
+
+const p = presidents.find((x) => x.slug === Astro.params.slug)!;
+const i = presidents.indexOf(p);
+const prev = presidents[i - 1], next = presidents[i + 1];
+const end = termEnd(p);
+// Window: four years before the term (the inherited trend) to two years after.
+const from = addYears(p.start, -4);
+const toCandidate = addYears(end, 2);
+const to = toCandidate > today() ? today() : toCandidate;
+const termEvents = events.filter((e) => e.date >= p.start && e.date < end);
+const rec = policyRecord(p);
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+<Layout title={p.name} description={`US indicators during ${p.name}'s presidency, ${p.start.slice(0, 4)}–${p.end?.slice(0, 4) ?? 'present'}.`}>
+  <p class="small"><a href={`${base}/presidents`}>Presidents</a></p>
+  <h1>{p.name}</h1>
+  <p class="lede">{p.party} · {formatDate(p.start)} – {p.end ? formatDate(p.end) : 'present'}</p>
+  <p class="lede small">
+    Each chart shows the four years before the term and two years after it, with the term highlighted.
+    Use the before-and-after comparison as context, not a verdict. Congress, the Fed, the global economy and the previous
+    administration's policies all move these numbers.
+  </p>
+
+  {groups.map((g) => (
+    <section>
+      <h2>{g.name}</h2>
+      <div class="grid">
+        {indicators.filter((ind) => ind.group === g.id).map((ind) => {
+          const s = seriesFor(ind.id);
+          const stat = termStat(ind, s.points, p);
+          const hasData = s.points.some(([d]) => d >= from && d <= to);
+          return (
+            <article class="card">
+              <a href={`${base}/indicators/${ind.id}`}><h3>{ind.name}</h3></a>
+              <dl>
+                <div><dt>During term</dt><dd><TermStatView ind={ind} stat={stat} part="during" /></dd></div>
+                <div><dt>4 years before</dt><dd><TermStatView ind={ind} stat={stat} part="before" /></dd></div>
+              </dl>
+              {hasData
+                ? <LineChart indicator={ind} points={s.points} from={from} to={to} size="card" highlight={p.slug} />
+                : <p class="muted small">Series starts after this term.</p>}
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  ))}
+
+  <h2>Tracked events during the term</h2>
+  {termEvents.length === 0 ? <p class="muted">None curated yet.</p> : (
+    <ol class="events">
+      {termEvents.map((e) => (
+        <li>
+          <span class="muted small">{formatDate(e.date)}</span> <span class="tag">{KIND_LABEL[e.kind]}</span>
+          <div><a href={e.link}>{e.title}</a>. {e.summary}</div>
+        </li>
+      ))}
+    </ol>
+  )}
+
+  <h2>Policy record</h2>
+  <div class="record">
+    <div class="panel">
+      <p class="stat">{rec.lawsAny ? rec.substantive : '—'}</p>
+      <p>substantive public laws signed{rec.lawsAny && <span class="muted"> · plus {rec.ceremonial} naming or commemorative</span>}</p>
+      {!rec.lawsComplete && <p class="muted small">{rec.lawsAny ? 'Partial: ' : ''}law records before {coverage.laws?.slice(0, 4) ?? 'now'} are still being backfilled.</p>}
+    </div>
+    <div class="panel">
+      <p class="stat">{rec.ordersAny ? rec.orders.length : '—'}</p>
+      <p>executive orders signed</p>
+      {!rec.ordersComplete && <p class="muted small">{rec.ordersAny ? 'Partial: the' : 'The'} Federal Register's machine-readable record starts in 1994.</p>}
+    </div>
+  </div>
+  {rec.laws.length > 0 && (
+    <details>
+      <summary>All {rec.laws.length} public laws</summary>
+      <ol class="record-list">
+        {rec.laws.map((l) => (
+          <li class:list={{ ceremonial: l.ceremonial }}>
+            <span class="muted small">{formatDate(l.date)} · P.L. {l.law}</span>
+            <div>{l.url ? <a href={l.url}>{l.title}</a> : l.title}</div>
+          </li>
+        ))}
+      </ol>
+    </details>
+  )}
+  {rec.orders.length > 0 && (
+    <details>
+      <summary>All {rec.orders.length} executive orders</summary>
+      <ol class="record-list">
+        {rec.orders.map((o) => (
+          <li>
+            <span class="muted small">{formatDate(o.date)}{o.n && ` · EO ${o.n}`}</span>
+            <div><a href={o.url}>{o.title}</a></div>
+          </li>
+        ))}
+      </ol>
+    </details>
+  )}
+
+  <nav class="pager">
+    {prev && termEnd(prev) > CHART_FROM ? <a href={`${base}/presidents/${prev.slug}`}>← {prev.name}</a> : <span></span>}
+    {next && <a href={`${base}/presidents/${next.slug}`}>{next.name} →</a>}
+  </nav>
+</Layout>
+
+<style>
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; }
+  @media (max-width: 400px) { .grid { grid-template-columns: 1fr; } }
+  .card h3 { color: var(--text-primary); }
+  .card a { text-decoration: none; }
+  .card a:hover h3 { color: var(--link); text-decoration: underline; }
+  dl { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0 4px; font-size: 14px; }
+  dt { color: var(--text-muted); font-size: 12px; }
+  dd { margin: 0; font-variant-numeric: tabular-nums; }
+  .events { list-style: none; padding: 0; margin: 0; }
+  .events li { padding: 10px 0; border-bottom: 1px solid var(--grid); }
+  .record { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 12px; }
+  .record p { margin: 0; }
+  .stat { font-size: 32px; font-weight: 600; line-height: 1.2; }
+  details { margin: 8px 0; }
+  summary { cursor: pointer; color: var(--link); padding: 6px 0; }
+  .record-list { list-style: none; padding: 0; margin: 0; max-height: 640px; overflow-y: auto; border-top: 1px solid var(--grid); }
+  .record-list li { padding: 8px 0; border-bottom: 1px solid var(--grid); font-size: 14px; }
+  .record-list li.ceremonial { opacity: 0.7; }
+  .pager { display: flex; justify-content: space-between; gap: 16px; margin-top: 32px; }
+</style>

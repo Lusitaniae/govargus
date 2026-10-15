@@ -1,0 +1,173 @@
+{
+  "groups": [
+    {
+      "id": "economy",
+      "name": "Economy"
+    },
+    {
+      "id": "households",
+      "name": "Households"
+    },
+    {
+      "id": "fiscal",
+      "name": "Federal budget"
+    },
+    {
+      "id": "health",
+      "name": "Health"
+    }
+  ],
+  "indicators": [
+    {
+      "id": "unemployment",
+      "group": "economy",
+      "name": "Unemployment rate",
+      "unit": "%",
+      "decimals": 1,
+      "source": {
+        "kind": "fred",
+        "series": "UNRATE",
+        "publisher": "Bureau of Labor Statistics"
+      },
+      "frequency": "monthly",
+      "description": "Share of the labor force that is jobless and actively looking for work (U-3, seasonally adjusted).",
+      "summary": "change"
+    },
+    {
+      "id": "gdp-growth",
+      "group": "economy",
+      "name": "Real GDP growth",
+      "unit": "%",
+      "decimals": 1,
+      "source": {
+        "kind": "fred",
+        "series": "A191RL1Q225SBEA",
+        "publisher": "Bureau of Economic Analysis"
+      },
+      "frequency": "quarterly",
+      "description": "Quarter-over-quarter change in inflation-adjusted GDP, expressed at an annual rate. Noisy by nature; look at the shape, not single quarters.",
+      "summary": "average"
+    },
+    {
+      "id": "inflation",
+      "group": "economy",
+      "name": "Inflation (CPI, year over year)",
+      "unit": "%",
+      "decimals": 1,
+      "source": {
+        "kind": "fred",
+        "series": "CPIAUCSL",
+        "transformation": "pc1",
+        "publisher": "Bureau of Labor Statistics"
+      },
+      "frequency": "monthly",
+      "description": "Percent change in the Consumer Price Index for All Urban Consumers versus the same month a year earlier.",
+      "summary": "average"
+    },
+    {
+      "id": "labor-participation",
+      "group": "economy",
+      "name": "Labor force participation",
+      "unit": "%",
+      "decimals": 1,
+      "source": {
+        "kind": "fred",
+        "series": "CIVPART",
+        "publisher": "Bureau of Labor Statistics"
+      },
+      "frequency": "monthly",
+      "description": "Share of the civilian population aged 16+ that is working or looking for work. Strongly shaped by demographics (baby-boomer retirement), not just policy.",
+      "summary": "change"
+    },
+    {
+      "id": "real-weekly-earnings",
+      "group": "households",
+      "name": "Real median weekly earnings (1982–84 $)",
+      "unit": "$",
+      "decimals": 0,
+      "source": {
+        "kind": "fred",
+        "series": "LES1252881600Q",
+        "publisher": "Bureau of Labor Statistics"
+      },
+      "frequency": "quarterly",
+      "description": "Median usual weekly earnings of full-time wage and salary workers, adjusted for inflation (CPI-U, 1982–84 dollars).",
+      "summary": "change"
+    },
+    {
+      "id": "median-household-income",
+      "group": "households",
+      "name": "Real median household income",
+      "unit": "$",
+      "decimals": 0,
+      "source": {
+        "kind": "fred",
+        "series": "MEHOINUSA672N",
+        "publisher": "Census Bureau"
+      },
+      "frequency": "annual",
+      "description": "Median household income adjusted for inflation to the most recent year's dollars (Census CPS ASEC). Published once a year, about nine months after the year ends.",
+      "summary": "change"
+    },
+    {
+      "id": "poverty",
+      "group": "households",
+      "name": "Poverty rate",
+      "unit": "%",
+      "decimals": 1,
+      "source": {
+        "kind": "fred",
+        "series": "PPAAUS00000A156NCEN",
+        "publisher": "Census Bureau (SAIPE)"
+      },
+      "frequency": "annual",
+      "description": "Estimated share of people of all ages living in poverty (Small Area Income and Poverty Estimates). Starts in 1989.",
+      "summary": "change"
+    },
+    {
+      "id": "deficit",
+      "group": "fiscal",
+      "name": "Federal surplus or deficit (% of GDP)",
+      "unit": "% of GDP",
+      "decimals": 1,
+      "source": {
+        "kind": "fred",
+        "series": "FYFSGDA188S",
+        "publisher": "Office of Management and Budget"
+      },
+      "frequency": "annual",
+      "description": "Federal budget balance by fiscal year as a share of GDP. Negative is a deficit. Budgets are set by Congress; the president proposes and signs.",
+      "summary": "average"
+    },
+    {
+      "id": "debt",
+      "group": "fiscal",
+      "name": "Federal debt (% of GDP)",
+      "unit": "% of GDP",
+      "decimals": 1,
+      "source": {
+        "kind": "fred",
+        "series": "GFDEGDQ188S",
+        "publisher": "Office of Management and Budget / Fed. Reserve Bank of St. Louis"
+      },
+      "frequency": "quarterly",
+      "description": "Total public debt (including debt held by federal trust funds) as a share of GDP.",
+      "summary": "change"
+    },
+    {
+      "id": "life-expectancy",
+      "group": "health",
+      "name": "Life expectancy at birth",
+      "unit": "years",
+      "decimals": 1,
+      "source": {
+        "kind": "fred",
+        "series": "SPDYNLE00INUSA",
+        "publisher": "World Bank"
+      },
+      "frequency": "annual",
+      "description": "Years a newborn would live if current mortality patterns held. Driven by medicine, behavior and shocks (opioids, COVID) over long horizons.",
+      "summary": "change"
+    }
+  ]
+}

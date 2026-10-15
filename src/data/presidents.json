@@ -1,0 +1,11 @@
+[
+  { "slug": "carter", "name": "Jimmy Carter", "short": "Carter", "party": "Democratic", "start": "1977-01-20", "end": "1981-01-20" },
+  { "slug": "reagan", "name": "Ronald Reagan", "short": "Reagan", "party": "Republican", "start": "1981-01-20", "end": "1989-01-20" },
+  { "slug": "bush-41", "name": "George H. W. Bush", "short": "Bush", "party": "Republican", "start": "1989-01-20", "end": "1993-01-20" },
+  { "slug": "clinton", "name": "Bill Clinton", "short": "Clinton", "party": "Democratic", "start": "1993-01-20", "end": "2001-01-20" },
+  { "slug": "bush-43", "name": "George W. Bush", "short": "Bush", "party": "Republican", "start": "2001-01-20", "end": "2009-01-20" },
+  { "slug": "obama", "name": "Barack Obama", "short": "Obama", "party": "Democratic", "start": "2009-01-20", "end": "2017-01-20" },
+  { "slug": "trump-2017", "name": "Donald Trump (1st term)", "short": "Trump", "party": "Republican", "start": "2017-01-20", "end": "2021-01-20" },
+  { "slug": "biden", "name": "Joe Biden", "short": "Biden", "party": "Democratic", "start": "2021-01-20", "end": "2025-01-20" },
+  { "slug": "trump-2025", "name": "Donald Trump (2nd term)", "short": "Trump", "party": "Republican", "start": "2025-01-20", "end": null }
+]

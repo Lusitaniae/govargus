@@ -1,0 +1,36 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { presidents, events, termEnd, CHART_FROM } from '../../lib/data';
+import { policyRecord } from '../../lib/policy';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const list = presidents.filter((p) => termEnd(p) > CHART_FROM).reverse();
+---
+<Layout title="Presidents">
+  <h1>Presidents</h1>
+  <p class="lede">Each page shows every indicator around one term: what it was when they took office, where it went, and what it was already doing beforehand.</p>
+  <ul class="list">
+    {list.map((p) => {
+      const n = events.filter((e) => e.date >= p.start && e.date < termEnd(p)).length;
+      const rec = policyRecord(p);
+      return (
+        <li class="card">
+          <a href={`${base}/presidents/${p.slug}`}><h3>{p.name}</h3></a>
+          <p class="muted small">{p.party} · {p.start.slice(0, 4)}–{p.end?.slice(0, 4) ?? 'present'} · {n} major event{n === 1 ? '' : 's'}</p>
+          {(rec.lawsAny || rec.ordersAny) && (
+            <p class="small">
+              {rec.lawsAny && <>{rec.substantive} substantive laws{!rec.lawsComplete && '*'}</>}
+              {rec.lawsAny && rec.ordersAny && ' · '}
+              {rec.ordersAny && <>{rec.orders.length} executive orders{!rec.ordersComplete && '*'}</>}
+            </p>
+          )}
+        </li>
+      );
+    })}
+  </ul>
+  <p class="small muted">* Partial: the machine-readable record doesn't cover the whole term yet.</p>
+</Layout>
+
+<style>
+  .list { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+  .list p { margin: 4px 0 0; }
+</style>
