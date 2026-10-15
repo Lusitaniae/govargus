@@ -10,7 +10,6 @@
     "check": "node scripts/check-data.mjs"
   },
   "dependencies": {
-    "@astrojs/sitemap": "^3.7.4",
     "@resvg/resvg-js": "^2.6.2",
     "astro": "^7.3.0"
   }
