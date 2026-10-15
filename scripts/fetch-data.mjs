@@ -59,10 +59,15 @@ function parseFredCsv(text) {
 }
 
 // `scale` converts units, e.g. 0.001 for a series published in thousands but shown in millions.
-async function fred({ series, transformation, scale = 1 }) {
+// `frequency` ('Monthly', 'Quarterly', 'Annual') has FRED average a higher-frequency series down, e.g. weekly to monthly.
+async function fred({ series, transformation, frequency, scale = 1 }) {
   const url = new URL('https://fred.stlouisfed.org/graph/fredgraph.csv');
   url.searchParams.set('id', series);
   if (transformation) url.searchParams.set('transformation', transformation);
+  if (frequency) {
+    url.searchParams.set('fq', frequency);
+    url.searchParams.set('fam', 'avg');
+  }
   return parseFredCsv(await get(url)).map(([d, v]) => [d, Math.round(v * scale * 1e6) / 1e6]);
 }
 

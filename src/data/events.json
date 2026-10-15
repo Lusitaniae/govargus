@@ -7,7 +7,8 @@
     "indicators": [
       "inflation",
       "unemployment",
-      "gdp-growth"
+      "gdp-growth",
+      "mortgage-rates"
     ],
     "link": "https://www.federalreservehistory.org/essays/anti-inflation-measures"
   },
@@ -18,7 +19,8 @@
     "summary": "Cuts the top income tax rate from 70% to 50% and phases in broad rate cuts and indexing.",
     "indicators": [
       "deficit",
-      "debt"
+      "debt",
+      "national-debt"
     ],
     "link": "https://en.wikipedia.org/wiki/Economic_Recovery_Tax_Act_of_1981"
   },
@@ -49,7 +51,8 @@
     "summary": "Bush signs tax increases and spending caps, breaking his \"no new taxes\" pledge; introduces pay-as-you-go budget rules.",
     "indicators": [
       "deficit",
-      "debt"
+      "debt",
+      "national-debt"
     ],
     "link": "https://en.wikipedia.org/wiki/Omnibus_Budget_Reconciliation_Act_of_1990"
   },
@@ -61,6 +64,7 @@
     "indicators": [
       "deficit",
       "debt",
+      "national-debt",
       "poverty"
     ],
     "link": "https://en.wikipedia.org/wiki/Omnibus_Budget_Reconciliation_Act_of_1993"
@@ -118,7 +122,8 @@
     "summary": "Spending restraint, mostly in Medicare, paired with the Taxpayer Relief Act's capital-gains cut and child tax credit.",
     "indicators": [
       "deficit",
-      "debt"
+      "debt",
+      "national-debt"
     ],
     "link": "https://en.wikipedia.org/wiki/Balanced_Budget_Act_of_1997"
   },
@@ -129,7 +134,8 @@
     "summary": "Broad income tax rate cuts, phased in and set to expire after 2010.",
     "indicators": [
       "deficit",
-      "debt"
+      "debt",
+      "national-debt"
     ],
     "link": "https://en.wikipedia.org/wiki/Economic_Growth_and_Tax_Relief_Reconciliation_Act_of_2001"
   },
@@ -141,6 +147,7 @@
     "indicators": [
       "deficit",
       "debt",
+      "national-debt",
       "gdp-growth"
     ],
     "link": "https://en.wikipedia.org/wiki/September_11_attacks"
@@ -152,7 +159,8 @@
     "summary": "Accelerates the 2001 rate cuts and cuts taxes on dividends and capital gains.",
     "indicators": [
       "deficit",
-      "debt"
+      "debt",
+      "national-debt"
     ],
     "link": "https://en.wikipedia.org/wiki/Jobs_and_Growth_Tax_Relief_Reconciliation_Act_of_2003"
   },
@@ -164,6 +172,7 @@
     "indicators": [
       "deficit",
       "debt",
+      "national-debt",
       "life-expectancy"
     ],
     "link": "https://en.wikipedia.org/wiki/Medicare_Prescription_Drug,_Improvement,_and_Modernization_Act"
@@ -198,7 +207,8 @@
     "summary": "Authorizes up to $700 billion to stabilize the financial system.",
     "indicators": [
       "deficit",
-      "debt"
+      "debt",
+      "national-debt"
     ],
     "link": "https://en.wikipedia.org/wiki/Emergency_Economic_Stabilization_Act_of_2008"
   },
@@ -211,7 +221,8 @@
       "unemployment",
       "gdp-growth",
       "deficit",
-      "debt"
+      "debt",
+      "national-debt"
     ],
     "link": "https://en.wikipedia.org/wiki/American_Recovery_and_Reinvestment_Act_of_2009"
   },
@@ -267,6 +278,7 @@
     "indicators": [
       "deficit",
       "debt",
+      "national-debt",
       "gdp-growth",
       "uninsured"
     ],
@@ -318,6 +330,7 @@
       "unemployment",
       "deficit",
       "debt",
+      "national-debt",
       "poverty"
     ],
     "link": "https://en.wikipedia.org/wiki/CARES_Act"
@@ -341,6 +354,7 @@
     "indicators": [
       "deficit",
       "debt",
+      "national-debt",
       "poverty",
       "inflation",
       "uninsured"
@@ -364,7 +378,8 @@
     "summary": "First of eleven rate hikes over 2022–23 to fight post-pandemic inflation.",
     "indicators": [
       "inflation",
-      "unemployment"
+      "unemployment",
+      "mortgage-rates"
     ],
     "link": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20220316a.htm"
   },
@@ -408,6 +423,7 @@
     "indicators": [
       "deficit",
       "debt",
+      "national-debt",
       "poverty",
       "uninsured"
     ],

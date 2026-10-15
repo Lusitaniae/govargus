@@ -150,6 +150,43 @@
       "summary": "change"
     },
     {
+      "id": "egg-prices",
+      "phrase": "the price of a dozen eggs",
+      "group": "households",
+      "name": "Egg prices (grade A large, per dozen)",
+      "unit": "$",
+      "decimals": 2,
+      "source": {
+        "kind": "fred",
+        "series": "APU0000708111",
+        "publisher": "Bureau of Labor Statistics",
+        "page": "https://fred.stlouisfed.org/series/APU0000708111",
+        "label": "FRED APU0000708111"
+      },
+      "frequency": "monthly",
+      "description": "Average US retail price of a dozen grade A large eggs (CPI average price data). In dollars of the day, not adjusted for inflation; spikes mostly follow bird flu outbreaks that cull laying hens.",
+      "summary": "change"
+    },
+    {
+      "id": "mortgage-rates",
+      "phrase": "the average 30-year mortgage rate",
+      "group": "households",
+      "name": "30-year mortgage rate",
+      "unit": "%",
+      "decimals": 2,
+      "source": {
+        "kind": "fred",
+        "series": "MORTGAGE30US",
+        "frequency": "Monthly",
+        "publisher": "Freddie Mac",
+        "page": "https://fred.stlouisfed.org/series/MORTGAGE30US",
+        "label": "FRED MORTGAGE30US"
+      },
+      "frequency": "monthly",
+      "description": "Average rate on a 30-year fixed-rate mortgage (Freddie Mac Primary Mortgage Market Survey), weekly survey averaged by month. Follows long-term Treasury yields and the Federal Reserve's policy more than anything a president does directly.",
+      "summary": "change"
+    },
+    {
       "id": "median-household-income",
       "group": "households",
       "name": "Real median household income",
@@ -217,6 +254,25 @@
       },
       "frequency": "quarterly",
       "description": "Total public debt (including debt held by federal trust funds) as a share of GDP.",
+      "summary": "change"
+    },
+    {
+      "id": "national-debt",
+      "phrase": "the national debt",
+      "group": "fiscal",
+      "name": "National debt (dollars)",
+      "unit": "$ trillion",
+      "decimals": 2,
+      "source": {
+        "kind": "fred",
+        "series": "GFDEBTN",
+        "scale": 1e-06,
+        "publisher": "U.S. Department of the Treasury",
+        "page": "https://fred.stlouisfed.org/series/GFDEBTN",
+        "label": "FRED GFDEBTN"
+      },
+      "frequency": "quarterly",
+      "description": "Total public debt outstanding, including debt held by federal trust funds, in dollars of the day (not adjusted for inflation or the size of the economy; see federal debt as a share of GDP for that). The change over a term is the debt added.",
       "summary": "change"
     },
     {

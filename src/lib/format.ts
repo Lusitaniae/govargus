@@ -19,6 +19,8 @@ export function formatValue(v: number, ind: { unit: string; decimals: number }, 
   const sign = opts.signed && r > 0 ? '+' : r < 0 ? '−' : '';
   const n = Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
   if (ind.unit === '$') return `${sign}$${n}`;
+  // '$ trillion' → "$36.22 trillion".
+  if (ind.unit.startsWith('$ ')) return `${sign}$${n} ${ind.unit.slice(2)}`;
   if (ind.unit.startsWith('%')) return `${sign}${n}${opts.signed ? ' pts' : '%'}`;
   return `${sign}${n} ${ind.unit}`;
 }

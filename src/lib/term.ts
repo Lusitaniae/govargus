@@ -15,7 +15,10 @@ export const TERM_PAGES: Record<string, string> = {
   inflation: 'Inflation',
   unemployment: 'Unemployment',
   jobs: 'Jobs',
-  debt: 'National debt',
+  'national-debt': 'National debt',
+  debt: 'Debt to GDP',
+  'mortgage-rates': 'Mortgage rates',
+  'egg-prices': 'Egg prices',
 };
 
 const shown = () => presidents.filter((p) => termEnd(p) > CHART_FROM);
