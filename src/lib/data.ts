@@ -15,7 +15,7 @@ export interface Indicator {
   frequency: Frequency;
   summary: 'change' | 'average';
   description: string;
-  source: { kind: string; series: string; publisher: string; transformation?: string };
+  source: { kind: string; publisher: string; page: string; label: string; [k: string]: unknown };
 }
 export interface Series { id: string; source: string; fetched: string; points: Point[] }
 export interface President { slug: string; name: string; short: string; party: string; start: string; end: string | null }
@@ -38,6 +38,9 @@ export function seriesFor(id: string): Series {
   if (!s) throw new Error(`No series data for ${id} — run make data`);
   return s;
 }
+
+/** Charts start in 1980, or later where a series does. */
+export const chartFrom = (points: Point[]) => (points[0][0] > CHART_FROM ? points[0][0] : CHART_FROM);
 
 export const today = () => new Date().toISOString().slice(0, 10);
 export const termEnd = (p: President) => p.end ?? today();

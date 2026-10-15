@@ -3,7 +3,7 @@ import Layout from '../../layouts/Layout.astro';
 import LineChart from '../../components/LineChart.astro';
 import TermStatView from '../../components/TermStat.astro';
 import {
-  indicators, groups, presidents, events, seriesFor, termStat, CHART_FROM,
+  indicators, groups, presidents, events, seriesFor, termStat, CHART_FROM, chartFrom,
   formatValue, formatPeriod, formatDate, KIND_LABEL, termEnd,
 } from '../../lib/data';
 
@@ -15,7 +15,7 @@ const ind = indicators.find((i) => i.id === Astro.params.id)!;
 const group = groups.find((g) => g.id === ind.group)!;
 const series = seriesFor(ind.id);
 const [lastDate, lastValue] = series.points.at(-1)!;
-const relevant = events.filter((e) => e.indicators.includes(ind.id) && e.date >= CHART_FROM);
+const relevant = events.filter((e) => e.indicators.includes(ind.id) && e.date >= chartFrom(series.points));
 const rows = presidents
   .filter((p) => termEnd(p) > CHART_FROM)
   .map((p) => ({ p, stat: termStat(ind, series.points, p) }))
@@ -29,10 +29,10 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   <p><span class="value">{formatValue(lastValue, ind)}</span> <span class="muted">latest, {formatPeriod(lastDate, ind.frequency)}</span></p>
 
   <div class="panel">
-    <LineChart indicator={ind} points={series.points} from={CHART_FROM} />
+    <LineChart indicator={ind} points={series.points} from={chartFrom(series.points)} />
   </div>
   <p class="small muted">
-    Source: {ind.source.publisher}, via <a href={`https://fred.stlouisfed.org/series/${ind.source.series}`}>FRED {ind.source.series}</a>.{' '}
+    Source: {ind.source.publisher}, via <a href={ind.source.page}>{ind.source.label}</a>.{' '}
     {ind.frequency[0].toUpperCase() + ind.frequency.slice(1)} data, fetched {formatDate(series.fetched)}.
   </p>
 

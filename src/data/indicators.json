@@ -13,6 +13,10 @@
       "name": "Federal budget"
     },
     {
+      "id": "safety",
+      "name": "Public safety"
+    },
+    {
       "id": "health",
       "name": "Health"
     }
@@ -27,7 +31,9 @@
       "source": {
         "kind": "fred",
         "series": "UNRATE",
-        "publisher": "Bureau of Labor Statistics"
+        "publisher": "Bureau of Labor Statistics",
+        "page": "https://fred.stlouisfed.org/series/UNRATE",
+        "label": "FRED UNRATE"
       },
       "frequency": "monthly",
       "description": "Share of the labor force that is jobless and actively looking for work (U-3, seasonally adjusted).",
@@ -42,7 +48,9 @@
       "source": {
         "kind": "fred",
         "series": "A191RL1Q225SBEA",
-        "publisher": "Bureau of Economic Analysis"
+        "publisher": "Bureau of Economic Analysis",
+        "page": "https://fred.stlouisfed.org/series/A191RL1Q225SBEA",
+        "label": "FRED A191RL1Q225SBEA"
       },
       "frequency": "quarterly",
       "description": "Quarter-over-quarter change in inflation-adjusted GDP, expressed at an annual rate. Noisy by nature; look at the shape, not single quarters.",
@@ -58,7 +66,9 @@
         "kind": "fred",
         "series": "CPIAUCSL",
         "transformation": "pc1",
-        "publisher": "Bureau of Labor Statistics"
+        "publisher": "Bureau of Labor Statistics",
+        "page": "https://fred.stlouisfed.org/series/CPIAUCSL",
+        "label": "FRED CPIAUCSL"
       },
       "frequency": "monthly",
       "description": "Percent change in the Consumer Price Index for All Urban Consumers versus the same month a year earlier.",
@@ -73,7 +83,9 @@
       "source": {
         "kind": "fred",
         "series": "CIVPART",
-        "publisher": "Bureau of Labor Statistics"
+        "publisher": "Bureau of Labor Statistics",
+        "page": "https://fred.stlouisfed.org/series/CIVPART",
+        "label": "FRED CIVPART"
       },
       "frequency": "monthly",
       "description": "Share of the civilian population aged 16+ that is working or looking for work. Strongly shaped by demographics (baby-boomer retirement), not just policy.",
@@ -88,7 +100,9 @@
       "source": {
         "kind": "fred",
         "series": "LES1252881600Q",
-        "publisher": "Bureau of Labor Statistics"
+        "publisher": "Bureau of Labor Statistics",
+        "page": "https://fred.stlouisfed.org/series/LES1252881600Q",
+        "label": "FRED LES1252881600Q"
       },
       "frequency": "quarterly",
       "description": "Median usual weekly earnings of full-time wage and salary workers, adjusted for inflation (CPI-U, 1982–84 dollars).",
@@ -103,7 +117,9 @@
       "source": {
         "kind": "fred",
         "series": "MEHOINUSA672N",
-        "publisher": "Census Bureau"
+        "publisher": "Census Bureau",
+        "page": "https://fred.stlouisfed.org/series/MEHOINUSA672N",
+        "label": "FRED MEHOINUSA672N"
       },
       "frequency": "annual",
       "description": "Median household income adjusted for inflation to the most recent year's dollars (Census CPS ASEC). Published once a year, about nine months after the year ends.",
@@ -118,7 +134,9 @@
       "source": {
         "kind": "fred",
         "series": "PPAAUS00000A156NCEN",
-        "publisher": "Census Bureau (SAIPE)"
+        "publisher": "Census Bureau (SAIPE)",
+        "page": "https://fred.stlouisfed.org/series/PPAAUS00000A156NCEN",
+        "label": "FRED PPAAUS00000A156NCEN"
       },
       "frequency": "annual",
       "description": "Estimated share of people of all ages living in poverty (Small Area Income and Poverty Estimates). Starts in 1989.",
@@ -133,7 +151,9 @@
       "source": {
         "kind": "fred",
         "series": "FYFSGDA188S",
-        "publisher": "Office of Management and Budget"
+        "publisher": "Office of Management and Budget",
+        "page": "https://fred.stlouisfed.org/series/FYFSGDA188S",
+        "label": "FRED FYFSGDA188S"
       },
       "frequency": "annual",
       "description": "Federal budget balance by fiscal year as a share of GDP. Negative is a deficit. Budgets are set by Congress; the president proposes and signs.",
@@ -148,11 +168,90 @@
       "source": {
         "kind": "fred",
         "series": "GFDEGDQ188S",
-        "publisher": "Office of Management and Budget / Fed. Reserve Bank of St. Louis"
+        "publisher": "Office of Management and Budget / Fed. Reserve Bank of St. Louis",
+        "page": "https://fred.stlouisfed.org/series/GFDEGDQ188S",
+        "label": "FRED GFDEGDQ188S"
       },
       "frequency": "quarterly",
       "description": "Total public debt (including debt held by federal trust funds) as a share of GDP.",
       "summary": "change"
+    },
+    {
+      "id": "violent-crime",
+      "group": "safety",
+      "name": "Violent crime rate",
+      "unit": "per 100k",
+      "decimals": 1,
+      "source": {
+        "kind": "fbi",
+        "field": "violent_crime",
+        "publisher": "FBI Uniform Crime Reporting",
+        "page": "https://cde.ucr.cjis.gov/LATEST/webapp/#/pages/downloads",
+        "label": "Crime Data Explorer"
+      },
+      "frequency": "annual",
+      "summary": "change",
+      "description": "Murders, rapes, robberies and aggravated assaults reported to police, per 100,000 people (FBI national estimates). Estimates from 2021 on are based on the FBI's new incident-based system (NIBRS) and aren't strictly comparable with earlier years."
+    },
+    {
+      "id": "property-crime",
+      "group": "safety",
+      "name": "Property crime rate",
+      "unit": "per 100k",
+      "decimals": 0,
+      "source": {
+        "kind": "fbi",
+        "field": "property_crime",
+        "publisher": "FBI Uniform Crime Reporting",
+        "page": "https://cde.ucr.cjis.gov/LATEST/webapp/#/pages/downloads",
+        "label": "Crime Data Explorer"
+      },
+      "frequency": "annual",
+      "summary": "change",
+      "description": "Burglaries, larcenies and motor vehicle thefts reported to police, per 100,000 people (FBI national estimates). Estimates from 2021 on are based on the FBI's new incident-based system (NIBRS) and aren't strictly comparable with earlier years."
+    },
+    {
+      "id": "murder",
+      "group": "safety",
+      "name": "Murder rate",
+      "unit": "per 100k",
+      "decimals": 1,
+      "source": {
+        "kind": "fbi",
+        "field": "homicide",
+        "publisher": "FBI Uniform Crime Reporting",
+        "page": "https://cde.ucr.cjis.gov/LATEST/webapp/#/pages/downloads",
+        "label": "Crime Data Explorer"
+      },
+      "frequency": "annual",
+      "summary": "change",
+      "description": "Murders and non-negligent manslaughters per 100,000 people (FBI national estimates). The 2001 figure excludes the deaths of September 11. Estimates from 2021 on are based on the FBI's new incident-based system (NIBRS) and aren't strictly comparable with earlier years."
+    },
+    {
+      "id": "firearm-deaths",
+      "group": "safety",
+      "name": "Firearm death rate",
+      "unit": "per 100k",
+      "decimals": 1,
+      "source": {
+        "kind": "cdc-wonder",
+        "requests": [
+          {
+            "dataset": "D76",
+            "file": "firearm-d76.xml"
+          },
+          {
+            "dataset": "D158",
+            "file": "firearm-d158.xml"
+          }
+        ],
+        "publisher": "CDC National Center for Health Statistics",
+        "page": "https://wonder.cdc.gov/ucd-icd10-expanded.html",
+        "label": "CDC WONDER"
+      },
+      "frequency": "annual",
+      "summary": "change",
+      "description": "Deaths from firearm injuries of any intent (suicide, homicide, accident), age-adjusted, per 100,000 people. From death certificates; final data starts in 1999. Roughly half are suicides."
     },
     {
       "id": "life-expectancy",
@@ -163,11 +262,72 @@
       "source": {
         "kind": "fred",
         "series": "SPDYNLE00INUSA",
-        "publisher": "World Bank"
+        "publisher": "World Bank",
+        "page": "https://fred.stlouisfed.org/series/SPDYNLE00INUSA",
+        "label": "FRED SPDYNLE00INUSA"
       },
       "frequency": "annual",
       "description": "Years a newborn would live if current mortality patterns held. Driven by medicine, behavior and shocks (opioids, COVID) over long horizons.",
       "summary": "change"
+    },
+    {
+      "id": "overdose-deaths",
+      "group": "health",
+      "name": "Drug overdose death rate",
+      "unit": "per 100k",
+      "decimals": 1,
+      "source": {
+        "kind": "cdc-socrata",
+        "parts": [
+          {
+            "dataset": "95ax-ymtc",
+            "where": {
+              "panel": "All drug overdose deaths",
+              "stub_label": "All persons",
+              "unit": "Deaths per 100,000 resident population, age-adjusted"
+            },
+            "year": "year",
+            "value": "estimate"
+          },
+          {
+            "dataset": "rdjz-vn2n",
+            "where": {
+              "subtopic": "All drug overdose deaths",
+              "subgroup": "All ages",
+              "estimate_type": "Deaths per 100,000 resident population, age adjusted"
+            },
+            "year": "time_period",
+            "value": "estimate"
+          }
+        ],
+        "publisher": "CDC National Center for Health Statistics",
+        "page": "https://data.cdc.gov/d/rdjz-vn2n",
+        "label": "data.cdc.gov"
+      },
+      "frequency": "annual",
+      "summary": "change",
+      "description": "Drug overdose deaths per 100,000 people, age-adjusted. Two CDC datasets joined at 2018, where both report the same value. Final data starts in 1999."
+    },
+    {
+      "id": "uninsured",
+      "group": "health",
+      "name": "Uninsured rate",
+      "unit": "%",
+      "decimals": 1,
+      "source": {
+        "kind": "census-xlsx",
+        "url": "https://www2.census.gov/programs-surveys/demo/tables/health-insurance/time-series/acs/hic04_acs.xlsx",
+        "match": {
+          "0": "United States",
+          "1": ".Uninsured"
+        },
+        "publisher": "Census Bureau (American Community Survey)",
+        "page": "https://www.census.gov/data/tables/time-series/demo/health-insurance/acs-hi.html",
+        "label": "ACS health insurance tables"
+      },
+      "frequency": "annual",
+      "summary": "change",
+      "description": "Share of the civilian population with no health insurance at the time of the survey (ACS). Starts in 2008; there is no 2020 value because the pandemic disrupted that year's survey. The ACA's main coverage provisions began in 2014."
     }
   ]
 }

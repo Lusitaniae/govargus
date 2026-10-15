@@ -32,8 +32,10 @@ install:
 	$(RUN) npm install
 
 # Pulls every indicator from its source into src/data/series/. Needs the network.
+# ONLY=<indicator-id> fetches just one.
+ONLY ?=
 data:
-	$(RUN) node scripts/fetch-data.mjs
+	$(RUN) node scripts/fetch-data.mjs $(ONLY)
 
 # Executive orders (Federal Register) and public laws (Congress.gov) into
 # src/data/policy/. Needs the network. Set CONGRESS_API_KEY (free, from

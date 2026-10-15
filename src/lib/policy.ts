@@ -58,7 +58,7 @@ export const presidentsWithPolicy = () => presidents.map((p) => ({ p, rec: polic
 // Pseudo-indicators so the counts can use the same chart component.
 const countIndicator = (id: string, name: string, unit: string): Indicator => ({
   id, name, unit, group: 'policy', decimals: 0, frequency: 'annual', summary: 'average',
-  description: '', source: { kind: 'generated', series: id, publisher: '' },
+  description: '', source: { kind: 'generated', publisher: '', page: '', label: '' },
 });
 export const lawsIndicator = countIndicator('laws-per-year', 'Substantive public laws per year', 'laws');
 export const ordersIndicator = countIndicator('orders-per-year', 'Executive orders per year', 'orders');

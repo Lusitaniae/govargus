@@ -1,14 +1,14 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import LineChart from '../components/LineChart.astro';
-import { groups, indicators, seriesFor, CHART_FROM, formatValue, formatPeriod, presidentAt } from '../lib/data';
+import { groups, indicators, seriesFor, chartFrom, formatValue, formatPeriod, presidentAt } from '../lib/data';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const current = presidentAt(new Date().toISOString().slice(0, 10));
 ---
 <Layout>
   <h1>How is the United States doing?</h1>
   <p class="lede">
-    Official indicators since 1980, drawn over every presidential term, with the laws,
+    Official indicators, since 1980 where the data goes back that far, drawn over every presidential term, with the laws,
     trade moves and shocks that hit along the way. Presidents get credit and blame for
     everything, but they share the controls with Congress, the Fed and the rest of the world, and most
     policies take years to show up. So nothing here is scored. Each president page compares
@@ -28,7 +28,7 @@ const current = presidentAt(new Date().toISOString().slice(0, 10));
                 <h3>{ind.name}</h3>
                 <p><span class="value">{formatValue(value, ind)}</span> <span class="muted small">{formatPeriod(date, ind.frequency)}</span></p>
               </a>
-              <LineChart indicator={ind} points={s.points} from={CHART_FROM} size="card" />
+              <LineChart indicator={ind} points={s.points} from={chartFrom(s.points)} size="card" />
             </article>
           );
         })}

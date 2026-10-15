@@ -20,11 +20,12 @@ import Layout from '../layouts/Layout.astro';
       <li><b>Levels</b> (unemployment, income, debt, and similar): the value for the last full period <em>before</em> inauguration, compared with the last full period before the term ended, or the latest data for a current term. The change is shown per year so 4- and 8-year terms are comparable.</li>
       <li><b>Rates</b> (GDP growth, inflation, deficit): the average of every period that falls entirely within the term, next to the average over the four years before.</li>
       <li>Annual series are reported late. Median household income for a year is published the following September, for example, so a current term often shows data only partway through.</li>
+      <li>Crime figures from 2021 on come from the FBI's incident-based system (NIBRS), which replaced the older summary system, so the jump between 2020 and 2021 partly reflects the method.</li>
       <li>The federal deficit is by <em>fiscal</em> year (October to September), so a president's first fiscal year was mostly budgeted by their predecessor.</li>
     </ul>
 
     <h2>Data</h2>
-    <p>Every series comes from a US government agency (BLS, BEA, Census, OMB) or the World Bank, retrieved through the Federal Reserve Bank of St. Louis's <a href="https://fred.stlouisfed.org/">FRED</a> service. A scheduled job re-fetches everything weekly. Each indicator page links to its exact source series. The policy timeline is curated by hand and lives in <code>src/data/events.json</code>. Corrections and additions are welcome as pull requests.</p>
+    <p>Every series comes from a US government agency or the World Bank. Economic and budget data (BLS, BEA, Census, OMB) is retrieved through the Federal Reserve Bank of St. Louis's <a href="https://fred.stlouisfed.org/">FRED</a> service; crime estimates from the FBI's <a href="https://cde.ucr.cjis.gov/">Crime Data Explorer</a>; firearm and overdose deaths from CDC death-certificate data; health insurance from the Census Bureau's American Community Survey. Executive orders come from the <a href="https://www.federalregister.gov/">Federal Register</a> and laws from <a href="https://www.congress.gov/">Congress.gov</a>. A scheduled job re-fetches everything weekly. Each indicator page links to its exact source series. The policy timeline is curated by hand and lives in <code>src/data/events.json</code>. Corrections and additions are welcome as pull requests.</p>
   </article>
 </Layout>
 
