@@ -1,53 +1,109 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import LineChart from '../components/LineChart.astro';
-import { groups, indicators, seriesFor, chartFrom, formatValue, formatPeriod, presidentAt } from '../lib/data';
+import {
+  groups, indicators, presidents, seriesFor, chartFrom, formatValue, formatPeriod, presidentAt,
+  termSoFar, monthYear, addYears, today,
+} from '../lib/data';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
-const current = presidentAt(new Date().toISOString().slice(0, 10));
+const current = presidentAt(today()) ?? presidents.at(-1)!;
+const prev = presidents[presidents.indexOf(current) - 1];
+// Short view: the previous term plus a year of what it inherited.
+const shortFrom = `${addYears(prev.start, -1).slice(0, 4)}-01-01`;
+const days = Math.floor((Date.parse(today()) - Date.parse(current.start)) / 864e5);
 ---
 <Layout>
-  <h1>How is the United States doing?</h1>
-  <p class="lede">
-    Official indicators, since 1980 where the data goes back that far, drawn over every presidential term, with the laws,
-    trade moves and shocks that hit along the way. Presidents get credit and blame for
-    everything, but they share the controls with Congress, the Fed and the rest of the world, and most
-    policies take years to show up. So nothing here is scored. Each president page compares
-    their term with the trend they inherited, and the rest is up to you.
-  </p>
-
-  {groups.map((g) => (
-    <section>
-      <h2>{g.name}</h2>
-      <div class="grid">
-        {indicators.filter((i) => i.group === g.id).map((ind) => {
-          const s = seriesFor(ind.id);
-          const [date, value] = s.points.at(-1)!;
-          return (
-            <article class="card">
-              <a class="card-head" href={`${base}/indicators/${ind.id}`}>
-                <h3>{ind.name}</h3>
-                <p><span class="value">{formatValue(value, ind)}</span> <span class="muted small">{formatPeriod(date, ind.frequency)}{s.provisionalFrom && ', provisional'}</span></p>
-              </a>
-              <LineChart indicator={ind} points={s.points} from={chartFrom(s.points)} size="card" provisionalFrom={s.provisionalFrom} />
-            </article>
-          );
-        })}
-      </div>
-    </section>
-  ))}
-
-  {current && (
-    <p class="small muted" style="margin-top:32px">
-      Current term: <a href={`${base}/presidents/${current.slug}`}>{current.name}</a>, since {current.start.slice(0, 4)}.
+  <div class="home">
+    <h1>How is the United States doing?</h1>
+    <p class="lede">
+      Official indicators for {current.name.replace(/ \(.*\)/, '')}'s term so far, {days.toLocaleString('en-US')} days in, next to
+      where {prev.name.replace(/ \(.*\)/, '')} was at the same point. Presidents share the controls with Congress, the Fed and the
+      rest of the world, and most policies take years to show up, so nothing here is scored. <a href={`${base}/about`}>How to read this</a>.
     </p>
-  )}
+
+    <div class="range" role="radiogroup" aria-label="Chart range">
+      <input type="radio" name="range" id="r-short" value="short" checked />
+      <label for="r-short">Last two terms</label>
+      <input type="radio" name="range" id="r-long" value="long" />
+      <label for="r-long">Since 1980</label>
+    </div>
+
+    {groups.map((g) => (
+      <section>
+        <h2>{g.name}</h2>
+        <div class="grid">
+          {indicators.filter((i) => i.group === g.id).map((ind) => {
+            const s = seriesFor(ind.id);
+            const [date, value] = s.points.at(-1)!;
+            const soFar = termSoFar(ind, s.points, current, prev);
+            const fmt = (v: number) => soFar!.kind === 'change' ? formatValue(v, ind, { signed: true }) : formatValue(v, ind);
+            const shortStart = s.points[0][0] > shortFrom ? s.points[0][0] : shortFrom;
+            return (
+              <article class="card">
+                <a class="card-head" href={`${base}/indicators/${ind.id}`}>
+                  <h3>{ind.name}</h3>
+                  <p><span class="value">{formatValue(value, ind)}</span> <span class="muted small">{formatPeriod(date, ind.frequency)}{s.provisionalFrom && ', provisional'}</span></p>
+                </a>
+                <p class="so-far small">
+                  {soFar ? (
+                    <>
+                      <span>{soFar.kind === 'change' ? <><b>{fmt(soFar.value)}</b> since {monthYear(current.start)}</> : <>avg <b>{fmt(soFar.value)}</b> this term</>}</span>
+                      {soFar.prev !== undefined && <span class="muted">{prev.short} at the same point: {fmt(soFar.prev)}</span>}
+                    </>
+                  ) : (
+                    <span class="muted">No data yet for this term (published {ind.frequency === 'annual' ? 'yearly, with a lag' : 'with a lag'})</span>
+                  )}
+                </p>
+                <div class="short">
+                  <LineChart indicator={ind} points={s.points} from={shortStart} size="card" highlight={current.slug} provisionalFrom={s.provisionalFrom} />
+                </div>
+                <div class="long">
+                  <LineChart indicator={ind} points={s.points} from={chartFrom(s.points)} size="card" provisionalFrom={s.provisionalFrom} />
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+    ))}
+
+    <p class="small muted" style="margin-top:32px">
+      More: <a href={`${base}/presidents/${current.slug}`}>{current.name}'s full page</a> ·
+      {' '}<a href={`${base}/compare`}>every term compared</a> · <a href={`${base}/events`}>what's been signed</a>
+    </p>
+  </div>
 </Layout>
+
+<script>
+  // Remember the chosen range for this viewer only; the page works without it.
+  const KEY = 'govargus:range';
+  try {
+    const saved = localStorage.getItem(KEY);
+    if (saved === 'long') (document.getElementById('r-long') as HTMLInputElement).checked = true;
+  } catch {}
+  document.querySelector('.range')?.addEventListener('change', (e) => {
+    try { localStorage.setItem(KEY, (e.target as HTMLInputElement).value); } catch {}
+  });
+</script>
 
 <style>
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; }
   @media (max-width: 400px) { .grid { grid-template-columns: 1fr; } }
+  .card { display: flex; flex-direction: column; }
   .card-head { display: block; color: inherit; text-decoration: none; margin-bottom: 4px; }
   .card-head:hover h3 { color: var(--link); text-decoration: underline; }
   .card-head p { margin: 2px 0 0; }
   .value { font-size: 22px; font-weight: 600; }
+  .so-far { margin: 0 0 6px; }
+  .so-far span { display: block; }
+  .short, .long { margin-top: auto; }
+  .long { display: none; }
+  .home:has(#r-long:checked) .long { display: block; }
+  .home:has(#r-long:checked) .short { display: none; }
+
+  .range { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin: 8px 0 0; background: var(--surface); }
+  .range input { position: absolute; opacity: 0; pointer-events: none; }
+  .range label { padding: 6px 14px; font-size: 14px; cursor: pointer; color: var(--text-secondary); }
+  .range input:checked + label { background: var(--series-1); color: #fff; }
+  .range input:focus-visible + label { outline: 2px solid var(--series-1); outline-offset: -2px; }
 </style>

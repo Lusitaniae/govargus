@@ -65,7 +65,7 @@ const tickLabel = (v: number) => {
 // X ticks: every 5 years on the big chart, every 10 on cards (fewer for short ranges).
 const yearFrom = Number(from.slice(0, 4)), yearTo = Number(to.slice(0, 4));
 const span = yearTo - yearFrom;
-const every = span <= 20 ? (size === 'card' ? 5 : 2) : size === 'card' ? 10 : 5;
+const every = span <= 8 ? (size === 'card' ? 2 : 1) : span <= 20 ? (size === 'card' ? 5 : 2) : size === 'card' ? 10 : 5;
 const xTicks: string[] = [];
 for (let yr = Math.ceil(yearFrom / every) * every; yr <= yearTo; yr += every) {
   const d = `${yr}-01-01`;

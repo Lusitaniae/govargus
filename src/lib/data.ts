@@ -197,3 +197,43 @@ export function formatHeadline(v: number, ind: Indicator): string {
   if (ind.summary === 'average') return formatValue(v, ind);
   return `${formatValue(v, ind, { signed: true, decimals: perYearDecimals(ind) })}/yr`;
 }
+
+// --- the current term so far ------------------------------------------------------
+
+export interface SoFar {
+  kind: 'change' | 'average';
+  /** Change since the last full period before inauguration, or the mean so far. */
+  value: number;
+  /** The previous president's figure at the same point in their term. */
+  prev?: number;
+}
+
+/**
+ * How an indicator has moved since `p` took office, and how it had moved by the
+ * same point in `prev`'s term: the like-for-like comparison for a term in progress.
+ */
+export function termSoFar(ind: Indicator, points: Point[], p: President, prev?: President): SoFar | null {
+  const lastEnd = periodEnd(points.at(-1)![0], ind.frequency);
+  if (lastEnd <= p.start) return null;
+  const elapsed = Date.parse(lastEnd) - Date.parse(p.start);
+  const samePoint = (start: string) => new Date(Date.parse(start) + elapsed).toISOString().slice(0, 10);
+
+  if (ind.summary === 'average') {
+    const now = meanBetween(points, p.start, lastEnd, ind.frequency);
+    if (!now) return null;
+    const before = prev && meanBetween(points, prev.start, samePoint(prev.start), ind.frequency);
+    return { kind: 'average', value: now.mean, prev: before?.mean };
+  }
+
+  const base = valueAsOf(points, p.start, ind.frequency);
+  if (!base) return null;
+  let prevChange: number | undefined;
+  if (prev) {
+    const pb = valueAsOf(points, prev.start, ind.frequency);
+    const pa = valueAsOf(points, samePoint(prev.start), ind.frequency);
+    if (pb && pa && pa[0] > pb[0]) prevChange = pa[1] - pb[1];
+  }
+  return { kind: 'change', value: points.at(-1)![1] - base[1], prev: prevChange };
+}
+
+export const monthYear = (date: string) => `${MONTHS[Number(date.slice(5, 7)) - 1]} ${date.slice(0, 4)}`;
