@@ -4,7 +4,7 @@
 import ordersJson from '../data/policy/executive-orders.json';
 import { type Indicator, type President, type Point, presidents, termEnd } from './data';
 
-export interface ExecutiveOrder { n: number | null; date: string; title: string; url: string }
+export interface ExecutiveOrder { n: number; date: string; title: string; url: string }
 export interface Law { law: string; date: string; title: string; url: string | null; ceremonial?: boolean }
 
 export const executiveOrders = ordersJson as ExecutiveOrder[];

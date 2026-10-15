@@ -37,13 +37,19 @@ async function fetchExecutiveOrders() {
   url.searchParams.set('per_page', '1000');
   url.searchParams.set('order', 'oldest');
 
+  // Corrections carry no EO number and some orders are published twice, so
+  // keep exactly one document per order number.
   const orders = [];
+  const seen = new Set();
   let next = url.toString();
   while (next) {
     const page = await getJson(next);
     for (const d of page.results ?? []) {
+      const n = Number(d.executive_order_number);
+      if (!n || seen.has(n)) continue;
+      seen.add(n);
       orders.push({
-        n: d.executive_order_number ? Number(d.executive_order_number) : null,
+        n,
         date: d.signing_date || d.publication_date,
         title: d.title.trim(),
         url: d.html_url,
@@ -51,7 +57,7 @@ async function fetchExecutiveOrders() {
     }
     next = page.next_page_url;
   }
-  orders.sort((a, b) => a.date.localeCompare(b.date) || (a.n ?? 0) - (b.n ?? 0));
+  orders.sort((a, b) => a.date.localeCompare(b.date) || a.n - b.n);
   await writeFile(new URL('executive-orders.json', ROOT), JSON.stringify(orders, null, 0).replace(/},{/g, '},\n{') + '\n');
   console.log(`executive orders: ${orders.length}, ${orders[0].date} to ${orders.at(-1).date}`);
 }
