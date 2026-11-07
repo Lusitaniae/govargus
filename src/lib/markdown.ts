@@ -10,6 +10,7 @@ import { policyRecord } from './policy';
 import { abs, indicatorTitle, presidentTitle, termYears } from './seo';
 import { extremes, termRange, currentTerm } from './summary';
 import { termPath, termTitle, termLead, termYearsTable, termExtremes, termEvents, rankedTerms } from './term';
+import { yearlyRows, endLabel } from './yearly';
 
 export const presidentsShown = () => presidents.filter((p) => termEnd(p) > CHART_FROM);
 
@@ -55,6 +56,10 @@ export function indicatorMarkdown(ind: Indicator): string {
     '',
     facts.join(' '),
     '',
+    `## ${ind.keyword[0].toUpperCase() + ind.keyword.slice(1)} by year`,
+    '',
+    ...yearTable(ind),
+    '',
     '## By presidential term',
     '',
     `${method(ind)} ${caveat}`,
@@ -70,6 +75,27 @@ export function indicatorMarkdown(ind: Indicator): string {
     ] : []),
     '',
   ].join('\n');
+}
+
+/** The by-year table: the plain-text twin of the one on the indicator page. */
+function yearTable(ind: Indicator): string[] {
+  const sub = ind.frequency !== 'annual';
+  const change = ind.summary === 'change';
+  const head = ['Year', ...(sub ? ['Average'] : []), endLabel(ind), ...(change ? ['Change'] : []), 'President'];
+  return [
+    `| ${head.join(' | ')} |`,
+    `| ${head.map(() => '---').join(' | ')} |`,
+    ...yearlyRows(ind, seriesFor(ind.id)).map((r) => {
+      const cells = [
+        `${r.label}${r.provisional ? ' (provisional)' : ''}`,
+        ...(sub ? [formatValue(r.avg!, ind)] : []),
+        formatValue(r.end, ind),
+        ...(change ? [r.change === undefined ? '' : `${formatValue(r.change, ind, { signed: true })}${r.pct === undefined ? '' : ` (${r.pct >= 0 ? '+' : '−'}${Math.abs(r.pct).toFixed(1)}%)`}`] : []),
+        r.president?.name ?? '',
+      ];
+      return `| ${cells.map(cell).join(' | ')} |`;
+    }),
+  ];
 }
 
 export function presidentMarkdown(p: President): string {

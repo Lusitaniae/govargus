@@ -26,6 +26,7 @@
       "id": "unemployment",
       "group": "economy",
       "name": "Unemployment rate",
+      "keyword": "unemployment rate",
       "unit": "%",
       "decimals": 1,
       "source": {
@@ -44,6 +45,7 @@
       "phrase": "the number of payroll jobs",
       "group": "economy",
       "name": "Nonfarm payroll jobs",
+      "keyword": "job growth",
       "unit": "million jobs",
       "decimals": 1,
       "source": {
@@ -63,6 +65,7 @@
       "phrase": "real GDP growth",
       "group": "economy",
       "name": "Real GDP growth",
+      "keyword": "GDP growth",
       "unit": "%",
       "decimals": 1,
       "source": {
@@ -81,6 +84,7 @@
       "phrase": "inflation",
       "group": "economy",
       "name": "Inflation (CPI, year over year)",
+      "keyword": "inflation rate",
       "unit": "%",
       "decimals": 1,
       "source": {
@@ -100,6 +104,7 @@
       "phrase": "labor force participation",
       "group": "economy",
       "name": "Labor force participation",
+      "keyword": "labor force participation rate",
       "unit": "%",
       "decimals": 1,
       "source": {
@@ -118,6 +123,7 @@
       "phrase": "real median weekly earnings",
       "group": "households",
       "name": "Real median weekly earnings (1982–84 $)",
+      "keyword": "real weekly earnings",
       "unit": "$",
       "decimals": 0,
       "source": {
@@ -136,6 +142,7 @@
       "phrase": "the price of regular gasoline",
       "group": "households",
       "name": "Gasoline price (regular, per gallon)",
+      "keyword": "gas prices",
       "unit": "$",
       "decimals": 2,
       "source": {
@@ -154,6 +161,7 @@
       "phrase": "the price of a dozen eggs",
       "group": "households",
       "name": "Egg prices (grade A large, per dozen)",
+      "keyword": "egg prices",
       "unit": "$",
       "decimals": 2,
       "source": {
@@ -172,6 +180,7 @@
       "phrase": "the average 30-year mortgage rate",
       "group": "households",
       "name": "30-year mortgage rate",
+      "keyword": "mortgage rates",
       "unit": "%",
       "decimals": 2,
       "source": {
@@ -190,6 +199,7 @@
       "id": "median-household-income",
       "group": "households",
       "name": "Real median household income",
+      "keyword": "median household income",
       "unit": "$",
       "decimals": 0,
       "source": {
@@ -207,6 +217,7 @@
       "id": "poverty",
       "group": "households",
       "name": "Poverty rate",
+      "keyword": "poverty rate",
       "unit": "%",
       "decimals": 1,
       "source": {
@@ -225,6 +236,7 @@
       "phrase": "the federal budget balance",
       "group": "fiscal",
       "name": "Federal surplus or deficit (% of GDP)",
+      "keyword": "budget deficit",
       "unit": "% of GDP",
       "decimals": 1,
       "source": {
@@ -242,6 +254,7 @@
       "id": "debt",
       "group": "fiscal",
       "name": "Federal debt (% of GDP)",
+      "keyword": "debt to GDP",
       "phrase": "federal debt as a share of GDP",
       "unit": "% of GDP",
       "decimals": 1,
@@ -261,6 +274,7 @@
       "phrase": "the national debt",
       "group": "fiscal",
       "name": "National debt (dollars)",
+      "keyword": "national debt",
       "unit": "$ trillion",
       "decimals": 2,
       "source": {
@@ -279,6 +293,7 @@
       "id": "violent-crime",
       "group": "safety",
       "name": "Violent crime rate",
+      "keyword": "violent crime rate",
       "unit": "per 100k",
       "decimals": 0,
       "source": {
@@ -296,6 +311,7 @@
       "id": "property-crime",
       "group": "safety",
       "name": "Property crime rate",
+      "keyword": "property crime rate",
       "unit": "per 100k",
       "decimals": 0,
       "source": {
@@ -313,6 +329,7 @@
       "id": "murder",
       "group": "safety",
       "name": "Murder rate",
+      "keyword": "murder rate",
       "unit": "per 100k",
       "decimals": 1,
       "source": {
@@ -330,6 +347,7 @@
       "id": "firearm-deaths",
       "group": "safety",
       "name": "Firearm death rate",
+      "keyword": "gun death rate",
       "unit": "per 100k",
       "decimals": 1,
       "source": {
@@ -365,6 +383,7 @@
       "phrase": "life expectancy",
       "group": "health",
       "name": "Life expectancy at birth",
+      "keyword": "life expectancy",
       "unit": "years",
       "decimals": 1,
       "source": {
@@ -382,6 +401,7 @@
       "id": "overdose-deaths",
       "group": "health",
       "name": "Drug overdose death rate",
+      "keyword": "overdose death rate",
       "unit": "per 100k",
       "decimals": 1,
       "source": {
@@ -428,6 +448,7 @@
       "id": "uninsured",
       "group": "health",
       "name": "Uninsured rate",
+      "keyword": "uninsured rate",
       "unit": "%",
       "decimals": 1,
       "source": {

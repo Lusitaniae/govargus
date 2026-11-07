@@ -56,6 +56,44 @@ export function termRange(ind: Indicator, series: Series): string | null {
   return `${lead} ${verbs[0]} under ${first.p.name}, at ${fig(first)}, and ${verbs[1]} under ${second.p.name}, at ${fig(second)}.`;
 }
 
+const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
+
+/**
+ * Whole-term totals, the other way people compare terms ("which president added
+ * the most to the national debt"): the largest rise and fall over a completed
+ * term, and the largest rise as a percentage of where the term started.
+ */
+export function termTotals(ind: Indicator, series: Series): string | null {
+  if (ind.summary !== 'change') return null;
+  const done = presidents
+    .filter((p) => p.end !== null && termEnd(p) > CHART_FROM)
+    .map((p) => ({ p, stat: termStat(ind, series.points, p) }))
+    .filter((t): t is { p: typeof t.p; stat: TermStat } => t.stat !== null && !t.stat.partial)
+    .map((t) => ({ ...t, delta: t.stat.end![1] - t.stat.start![1], base: t.stat.start![1] }));
+  if (done.length < 2) return null;
+  const span = (t: (typeof done)[number]) => {
+    const y = Math.round((Date.parse(t.p.end!) - Date.parse(t.p.start)) / (365.25 * 864e5));
+    return `${WORDS[y] ?? y} years`;
+  };
+  const signed = (v: number) => formatValue(v, ind, { signed: true });
+  const up = [...done].sort((a, b) => b.delta - a.delta)[0];
+  const down = [...done].sort((a, b) => a.delta - b.delta)[0];
+  const parts: string[] = [];
+  // Percent change of a level ("+188%"); not for rates, where it would read as points.
+  const relative = !ind.unit.startsWith('%') && done.every((t) => t.base > 0);
+  const pct = (t: (typeof done)[number]) => (t.delta / t.base) * 100;
+  const top = relative ? [...done].sort((a, b) => pct(b) - pct(a))[0] : null;
+  if (up.delta > 0) {
+    const also = top === up ? ` (+${pct(up).toFixed(0)}%, also the largest as a percentage)` : '';
+    parts.push(`the largest increase came under ${up.p.name}, ${signed(up.delta)} in ${span(up)}${also}`);
+    if (top && top !== up) parts.push(`the largest as a percentage under ${top.p.name}, +${pct(top).toFixed(0)}%`);
+  }
+  if (down.delta < 0) parts.push(`the largest decrease under ${down.p.name}, ${signed(down.delta)} in ${span(down)}`);
+  if (!parts.length) return null;
+  const text = parts.length > 1 ? `${parts.slice(0, -1).join('; ')}; and ${parts.at(-1)}` : parts[0];
+  return `Over whole terms, ${text}.`;
+}
+
 /** Where the current term stands, from the last period before inauguration to the latest data. */
 export function currentTerm(ind: Indicator, series: Series): string | null {
   const p = presidents.at(-1)!;

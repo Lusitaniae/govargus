@@ -45,6 +45,8 @@ for (const e of events) {
 const sorted = [...events].sort((a, b) => a.date.localeCompare(b.date));
 if (sorted.some((e, i) => e !== events[i])) errors.push('events.json is not sorted by date');
 
+for (const ind of indicators) if (!ind.keyword || ind.keyword !== ind.keyword.trim()) errors.push(`${ind.id}: needs a "keyword" (the search phrase)`);
+
 if (errors.length) {
   console.error(errors.map((e) => `  ✗ ${e}`).join('\n'));
   process.exit(1);

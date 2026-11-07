@@ -13,6 +13,8 @@ export interface Indicator {
   id: string;
   group: string;
   name: string;
+  /** The phrase people search for, lowercase except acronyms: "gas prices", "GDP growth". */
+  keyword: string;
   unit: string;
   decimals: number;
   frequency: Frequency;

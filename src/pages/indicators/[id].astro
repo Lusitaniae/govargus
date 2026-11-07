@@ -1,13 +1,16 @@
 ---
+// One indicator year by year ("gas prices by year"). Every presidential term
+// side by side is the compare page ("gas prices by president"); the two link
+// to each other but answer different searches.
 import Layout from '../../layouts/Layout.astro';
 import LineChart from '../../components/LineChart.astro';
-import TermStatView from '../../components/TermStat.astro';
 import {
-  indicators, groups, presidents, events, seriesFor, termStat, CHART_FROM, chartFrom,
-  formatValue, formatPeriod, formatDate, KIND_LABEL, termEnd,
+  type President, indicators, groups, events, seriesFor, chartFrom,
+  formatValue, formatPeriod, formatDate, KIND_LABEL,
 } from '../../lib/data';
-import { indicatorTitle, indicatorDescription, dataset, breadcrumbs } from '../../lib/seo';
+import { indicatorTitle, indicatorDescription, dataset, breadcrumbs, keywordCap, tableYears } from '../../lib/seo';
 import { extremes, termRange, currentTerm } from '../../lib/summary';
+import { yearlyRows, endLabel } from '../../lib/yearly';
 import { hasTermPage, termPath } from '../../lib/term';
 
 export function getStaticPaths() {
@@ -19,14 +22,24 @@ const group = groups.find((g) => g.id === ind.group)!;
 const series = seriesFor(ind.id);
 const [lastDate, lastValue] = series.points.at(-1)!;
 const relevant = events.filter((e) => e.indicators.includes(ind.id) && e.date >= chartFrom(series.points));
-const rows = presidents
-  .filter((p) => termEnd(p) > CHART_FROM)
-  .map((p) => ({ p, stat: termStat(ind, series.points, p) }))
-  .reverse();
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
-const [, bare, unit] = ind.name.match(/^(.*?)(?:\s*(\(.*\)))?$/)!;
-const facts = [extremes(ind, series), termRange(ind, series), currentTerm(ind, series)].filter(Boolean);
+const [, , unit] = ind.name.match(/^(.*?)(?:\s*(\(.*\)))?$/)!;
+const facts = [extremes(ind, series), currentTerm(ind, series)].filter(Boolean);
+const byPresident = termRange(ind, series);
 const related = indicators.filter((i) => i.group === ind.group && i.id !== ind.id);
+
+const rows = yearlyRows(ind, series);
+const sub = ind.frequency !== 'annual';
+const change = ind.summary === 'change';
+const per = ind.frequency === 'monthly' ? 'monthly' : 'quarterly';
+const tableNote = [
+  sub ? `Average of each year's ${per} readings, and the ${endLabel(ind)} reading` : 'One value per year',
+  change ? `, with the change from the year before.` : '.',
+  /fiscal year/i.test(ind.description) ? ' Years are federal fiscal years (October to September).' : '',
+  ' The president is whoever held office for most of the year.',
+].join('');
+const presidentLink = (p: President) => `${base}${hasTermPage(p, ind) ? termPath(p, ind) : `/presidents/${p.slug}`}`;
+const pct = (v?: number) => (v === undefined ? '' : `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(1)}%`);
 ---
 <Layout
   title={indicatorTitle(ind, series)}
@@ -36,7 +49,7 @@ const related = indicators.filter((i) => i.group === ind.group && i.id !== ind.i
   schema={[dataset(ind, series), breadcrumbs([['Indicators', '/'], [ind.name, `/indicators/${ind.id}`]])]}
 >
   <p class="small muted">{group.name}</p>
-  <h1>{bare} by president{unit && <span class="unit"> {unit}</span>}</h1>
+  <h1>US {ind.keyword} by year{unit && <span class="unit"> {unit}</span>}</h1>
   <p class="lede">{ind.description}</p>
   <p><span class="value">{formatValue(lastValue, ind)}</span> <span class="muted">latest, {formatPeriod(lastDate, ind.frequency)}{series.provisionalFrom && ' (provisional)'}</span></p>
 
@@ -50,34 +63,49 @@ const related = indicators.filter((i) => i.group === ind.group && i.id !== ind.i
 
   <p class="facts">{facts.join(' ')}</p>
 
-  <h2>By presidential term</h2>
-  <p class="small"><a href={`${base}/compare/${ind.id}`}>{ind.name}, term by term</a>: every term lined up from inauguration on one chart.</p>
-  <p class="lede small">
-    {ind.summary === 'average'
-      ? 'Average during each term, next to the average over the four years before it.'
-      : 'Value at the last full period before inauguration and at the end of the term, with the yearly rate of change. The second column is the rate of change over the four years before the term: the trend they inherited.'}
-    {' '}Remember the lag: a term's first year mostly reflects the previous one's policies.
-  </p>
+  <h2>{keywordCap(ind)} by year, {tableYears(series)}</h2>
+  <p class="lede small">{tableNote}</p>
   <div class="table-scroll">
     <table class="data">
-      <thead><tr><th>President</th><th>During term</th><th>4 years before</th></tr></thead>
+      <thead>
+        <tr>
+          <th>Year</th>
+          {sub && <th>Average</th>}
+          <th>{endLabel(ind)}</th>
+          {change && <th>Change</th>}
+          <th>President</th>
+        </tr>
+      </thead>
       <tbody>
-        {rows.map(({ p, stat }) => (
+        {rows.map((r) => (
           <tr>
-            <td><a href={`${base}${hasTermPage(p, ind) ? termPath(p, ind) : `/presidents/${p.slug}`}`}>{p.name}</a><br /><span class="muted small">{p.start.slice(0, 4)}–{p.end?.slice(0, 4) ?? 'now'}</span></td>
-            <td><TermStatView ind={ind} stat={stat} part="during" /></td>
-            <td><TermStatView ind={ind} stat={stat} part="before" /></td>
+            <td>{r.label}{r.provisional && <span class="muted small"> provisional</span>}</td>
+            {sub && <td>{formatValue(r.avg!, ind)}</td>}
+            <td>{formatValue(r.end, ind)}</td>
+            {change && (
+              <td>
+                {r.change === undefined ? '' : formatValue(r.change, ind, { signed: true })}
+                {r.pct !== undefined && <span class="muted small"> {pct(r.pct)}</span>}
+              </td>
+            )}
+            <td>{r.president ? <a href={presidentLink(r.president)}>{r.president.name}</a> : ''}</td>
           </tr>
         ))}
       </tbody>
     </table>
   </div>
 
+  <h2>By president</h2>
+  <p class="facts">
+    {byPresident}{' '}
+    <a href={`${base}/compare/${ind.id}`}>{keywordCap(ind)} by president</a>: {change ? 'where every term started and ended, the change,' : 'the average in every term'} and the trend each one inherited.
+  </p>
+
   {related.length > 0 && (
     <>
-      <h2>More {group.name.toLowerCase()} indicators</h2>
+      <h2>More {group.name.toLowerCase()} data by year</h2>
       <ul class="related">
-        {related.map((i) => <li><a href={`${base}/indicators/${i.id}`}>{i.name.replace(/\s*\(.*\)$/, '')} by president</a></li>)}
+        {related.map((i) => <li><a href={`${base}/indicators/${i.id}`}>US {i.keyword} by year</a></li>)}
       </ul>
     </>
   )}
@@ -105,4 +133,5 @@ const related = indicators.filter((i) => i.group === ind.group && i.id !== ind.i
   .related li { margin: 4px 0; }
   .events { list-style: none; padding: 0; margin: 0; }
   .events li { padding: 10px 0; border-bottom: 1px solid var(--grid); }
+  table.data td:last-child, table.data th:last-child { text-align: left; white-space: nowrap; }
 </style>

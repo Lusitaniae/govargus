@@ -6,7 +6,7 @@ import {
   presidents, indicators, seriesFor, termEnd, addYears, today, formatValue, formatPeriod, formatDate,
   KIND_LABEL,
 } from '../../../lib/data';
-import { breadcrumbs, termYears } from '../../../lib/seo';
+import { breadcrumbs, termYears, keywordCap } from '../../../lib/seo';
 import {
   TERM_PAGES, termPages, termPath, termHeading, termTitle, termDescription, termLead, termYearsTable,
   termExtremes, termEvents, rankedTerms, hasTermPage,
@@ -104,7 +104,7 @@ const label = TERM_PAGES[ind.id];
       </tbody>
     </table>
   </div>
-  <p class="small"><a href={`${base}/compare/${ind.id}`}>Every term lined up from inauguration day on one chart</a> · <a href={`${base}/indicators/${ind.id}`}>{ind.name.replace(/\s*\(.*\)$/, '')} by president since 1980</a></p>
+  <p class="small"><a href={`${base}/compare/${ind.id}`}>{keywordCap(ind)} by president: every term compared</a> · <a href={`${base}/indicators/${ind.id}`}>US {ind.keyword} by year</a></p>
 
   {evs.length > 0 && (
     <>

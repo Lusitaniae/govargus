@@ -1,10 +1,18 @@
 ---
+// One indicator by presidential term ("national debt by president"): the
+// answer up top, the full series with terms shaded, every term's start, end and
+// change, then every term lined up from inauguration day. The series year by
+// year is the indicator page.
 import Layout from '../../layouts/Layout.astro';
+import LineChart from '../../components/LineChart.astro';
 import OverlayChart from '../../components/OverlayChart.astro';
-import TermStatView from '../../components/TermStat.astro';
-import { indicators, presidents, seriesFor, termStat, termTrajectory, termEnd, CHART_FROM } from '../../lib/data';
-import { compareTitle, compareDescription, breadcrumbs } from '../../lib/seo';
-import { termRange, currentTerm } from '../../lib/summary';
+import {
+  indicators, presidents, seriesFor, termStat, termTrajectory, termEnd, chartFrom, CHART_FROM,
+  formatValue, formatPeriod, formatDate, perYearDecimals,
+} from '../../lib/data';
+import { compareTitle, compareDescription, breadcrumbs, keywordCap, termYears } from '../../lib/seo';
+import { termRange, termTotals, currentTerm } from '../../lib/summary';
+import { hasTermPage, termPath } from '../../lib/term';
 
 export function getStaticPaths() {
   return indicators.map((ind) => ({ params: { id: ind.id } }));
@@ -17,56 +25,105 @@ const trajectories = terms.map((p) => termTrajectory(ind, series.points, p)).fil
 // Default highlight: the three most recent terms with data.
 const initial = trajectories.slice(-3).map((t) => t.slug).reverse();
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
-const facts = [termRange(ind, series), currentTerm(ind, series)].filter(Boolean);
+const [, , unit] = ind.name.match(/^(.*?)(?:\s*(\(.*\)))?$/)!;
+const answer = [termRange(ind, series), termTotals(ind, series), currentTerm(ind, series)].filter(Boolean);
+const change = ind.summary === 'change';
+const relative = !ind.unit.startsWith('%');
+const rows = terms.slice().reverse().map((p) => ({ p, stat: termStat(ind, series.points, p) }));
+const perYear = (v: number) => `${formatValue(v, ind, { signed: true, decimals: perYearDecimals(ind) })}/yr`;
+const pct = (from: number, to: number) => {
+  const v = ((to - from) / Math.abs(from)) * 100;
+  return `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(0)}%`;
+};
+const period = (d: string) => formatPeriod(d, ind.frequency).replace(/^12 mo\. to /, '');
+const presidentLink = (slug: string) => {
+  const p = presidents.find((x) => x.slug === slug)!;
+  return `${base}${hasTermPage(p, ind) ? termPath(p, ind) : `/presidents/${p.slug}`}`;
+};
 ---
 <Layout
-  title={compareTitle(ind)}
+  title={compareTitle(ind, series)}
   description={compareDescription(ind, series)}
   image={`/og/${ind.id}.png`}
   schema={breadcrumbs([['Compare', '/compare'], [ind.name, `/compare/${ind.id}`]])}
 >
   <p class="small"><a href={`${base}/compare`}>Compare</a></p>
-  <h1>{ind.name}, term by term</h1>
-  <p class="lede">
-    Every term lined up from its inauguration. Context is everything: compare the start of a term with the trend it inherited
-    and with what was happening in the world (recessions, pandemics), all of which are on the <a href={`${base}/indicators/${ind.id}`}>full {ind.name.toLowerCase()} chart</a>.
+  <h1>{keywordCap(ind)} by president{unit && <span class="unit"> {unit}</span>}</h1>
+  <p class="lede">{ind.description}</p>
+  {answer.length > 0 && <p class="answer">{answer.join(' ')}</p>}
+
+  <div class="panel">
+    <LineChart indicator={ind} points={series.points} from={chartFrom(series.points)} provisionalFrom={series.provisionalFrom} />
+  </div>
+  <p class="small muted">
+    Source: {ind.source.publisher}, via <a href={ind.source.page}>{ind.source.label}</a>, fetched {formatDate(series.fetched)}.
+    Shaded bands are presidential terms. Every year in a table: <a href={`${base}/indicators/${ind.id}`}>US {ind.keyword} by year</a>.
   </p>
 
+  <h2>Every term</h2>
+  <p class="lede small">
+    {change
+      ? 'The value at the last full period before inauguration and at the end of the term (or the latest data), the change, and the yearly pace next to the pace over the four years before: the trend each term inherited.'
+      : 'The average during each term, next to the average over the four years before it: the trend each term inherited.'}
+    {' '}A term's first year mostly reflects the previous administration's policies, and Congress, the Federal Reserve and the world economy move these numbers too.
+  </p>
+  <div class="table-scroll">
+    <table class="data">
+      <thead>
+        {change
+          ? <tr><th>President</th><th>Start</th><th>End</th><th>Change</th><th>Per year</th><th>4 years before</th></tr>
+          : <tr><th>President</th><th>Average</th><th>4 years before</th></tr>}
+      </thead>
+      <tbody>
+        {rows.map(({ p, stat }) => (
+          <tr>
+            <td><a href={presidentLink(p.slug)}>{p.name}</a><br /><span class="muted small">{termYears(p)}</span></td>
+            {!stat ? (
+              <td colspan={change ? 5 : 2} class="muted">no data for this term</td>
+            ) : change ? (
+              <>
+                <td>{formatValue(stat.start![1], ind)}<br /><span class="muted small">{period(stat.start![0])}</span></td>
+                <td>{formatValue(stat.end![1], ind)}<br /><span class="muted small">{period(stat.end![0])}{stat.partial && ', so far'}</span></td>
+                <td>
+                  <b>{formatValue(stat.end![1] - stat.start![1], ind, { signed: true })}</b>
+                  {relative && stat.start![1] > 0 && <><br /><span class="muted small">{pct(stat.start![1], stat.end![1])}</span></>}
+                </td>
+                <td>{perYear(stat.perYear!)}</td>
+                <td>{stat.priorPerYear !== undefined ? perYear(stat.priorPerYear) : <span class="muted">—</span>}</td>
+              </>
+            ) : (
+              <>
+                <td><b>{formatValue(stat.mean!, ind)}</b>{stat.partial && <span class="muted"> so far</span>}</td>
+                <td>{stat.priorMean !== undefined ? formatValue(stat.priorMean, ind) : <span class="muted">—</span>}</td>
+              </>
+            )}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Lined up from inauguration</h2>
+  <p class="lede small">
+    {change
+      ? 'Each term starts at zero on its inauguration day, so the lines show how far the indicator moved in the same number of years.'
+      : 'Each term on the same clock, from its inauguration day.'}
+    {' '}Pick terms to highlight, or switch indicators.
+  </p>
   <nav class="switch" aria-label="Other indicators">
     <label class="small muted" for="ind-switch">Indicator</label>
     <select id="ind-switch" onchange="location.href=this.value">
       {indicators.map((i) => <option value={`${base}/compare/${i.id}`} selected={i.id === ind.id}>{i.name}</option>)}
     </select>
   </nav>
-
   <div class="panel">
     <OverlayChart indicator={ind} trajectories={trajectories} presidents={presidents} initial={initial} />
-  </div>
-
-  {facts.length > 0 && <p class="facts">{facts.join(' ')}</p>}
-
-  <h2>Numbers</h2>
-  <div class="table-scroll">
-    <table class="data">
-      <thead><tr><th>President</th><th>During term</th><th>4 years before</th></tr></thead>
-      <tbody>
-        {terms.slice().reverse().map((p) => {
-          const stat = termStat(ind, series.points, p);
-          return (
-            <tr>
-              <td><a href={`${base}/presidents/${p.slug}`}>{p.name}</a></td>
-              <td><TermStatView ind={ind} stat={stat} part="during" /></td>
-              <td><TermStatView ind={ind} stat={stat} part="before" /></td>
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
   </div>
 </Layout>
 
 <style>
-  .facts { max-width: 68ch; }
+  h1 .unit { font-weight: 400; color: var(--text-secondary); font-size: 0.7em; }
+  .answer { max-width: 68ch; }
   .switch { display: flex; align-items: center; gap: 8px; margin: 16px 0; }
   select { font: inherit; font-size: 15px; padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-primary); max-width: 100%; }
 </style>
