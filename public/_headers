@@ -1,0 +1,7 @@
+# Cloudflare static-assets response headers.
+#
+# The Markdown copies of pages are for AI assistants (linked from llms.txt and
+# each page's <link rel="alternate">). Keep them out of search results so they
+# don't compete with the HTML pages they duplicate.
+/*.md
+  X-Robots-Tag: noindex

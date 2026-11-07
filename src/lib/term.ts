@@ -77,8 +77,10 @@ export function termLead(p: President, ind: Indicator): string {
   const rank = rankPhrase(ind, p);
   if (s.kind === 'average') {
     const prior = s.priorMean !== undefined ? `, against ${formatValue(s.priorMean, ind)} in the four years before` : '';
+    const { hi, lo } = termExtremes(ind, p);
     return `${s.partial ? `So far under ${p.name}, ${subj} has averaged` : `Under ${p.name}, ${subj} averaged`} ${formatValue(s.mean!, ind)}${prior}.` +
-      (rank ? ` That is ${rank}.` : '');
+      (rank ? ` That is ${rank}.` : '') +
+      ` Readings ranged from ${formatValue(lo[1], ind)} in ${formatPeriod(lo[0], ind.frequency)} to ${formatValue(hi[1], ind)} in ${formatPeriod(hi[0], ind.frequency)}.`;
   }
   const [d0, v0] = s.start!, [d1, v1] = s.end!;
   const delta = v1 - v0;
@@ -89,16 +91,40 @@ export function termLead(p: President, ind: Indicator): string {
   const opening = s.partial
     ? `So far under ${p.name}, ${subj} has gone from ${from} to ${to}, ${move}.`
     : `Under ${p.name}, ${subj} went from ${from} to ${to}, ${move}.`;
+  // People ask for the peak ("highest gas prices under Obama"), which start and end alone can hide.
+  const { hi, lo } = innerExtremes(ind, p, s);
+  const peak = (hi ? ` In between, it peaked at ${formatValue(hi[1], ind)} in ${formatPeriod(hi[0], ind.frequency)}` : '') +
+    (lo ? `${hi ? ' and' : ' In between, it'} fell as low as ${formatValue(lo[1], ind)} in ${formatPeriod(lo[0], ind.frequency)}` : '') +
+    (hi || lo ? '.' : '');
   const pace = ` That is ${formatHeadline(s.perYear!, ind)}${s.priorPerYear !== undefined ? `, against ${formatHeadline(s.priorPerYear, ind)} in the four years before` : ''}.`;
-  return opening + pace + (rank ? ` Ranked by yearly change, it is ${rank}.` : '');
+  return opening + peak + pace + (rank ? ` Ranked by yearly change, it is ${rank}.` : '');
+}
+
+/** The term's high and low, each only where it differs from the start and end readings. */
+function innerExtremes(ind: Indicator, p: President, s: TermStat): { hi: Point | null; lo: Point | null } {
+  const { hi, lo } = termExtremes(ind, p);
+  if (s.kind === 'average') return { hi, lo };
+  // Skip a high or low within 2% of the start or end: a one-cent dip isn't news.
+  const [a, b] = [s.start![1], s.end![1]];
+  const tol = 0.02 * Math.max(Math.abs(a), Math.abs(b));
+  return { hi: hi[1] > Math.max(a, b) + tol ? hi : null, lo: lo[1] < Math.min(a, b) - tol ? lo : null };
 }
 
 export function termDescription(p: President, ind: Indicator): string {
   const s = termStat(ind, seriesFor(ind.id).points, p)!;
+  const { hi, lo } = innerExtremes(ind, p, s);
+  const at = (pt: Point) => `${formatValue(pt[1], ind)} (${formatPeriod(pt[0], ind.frequency)})`;
   const fig = s.kind === 'average'
-    ? `averaged ${formatValue(s.mean!, ind)}${s.partial ? ' so far' : ''}`
-    : `${formatValue(s.start![1], ind)} to ${formatValue(s.end![1], ind)}${s.partial ? ' so far' : ''}`;
-  return `${termHeading(p, ind)} (${termYears(p)}): ${fig}. Year by year, against the trend inherited and other terms.`;
+    ? `averaged ${formatValue(s.mean!, ind)}${s.partial ? ' so far' : ''}; high ${at(hi!)}, low ${at(lo!)}`
+    : [
+      `${formatValue(s.start![1], ind)} at the start`,
+      hi && `high of ${at(hi)}`,
+      lo && `low of ${at(lo)}`,
+      `${formatValue(s.end![1], ind)} ${s.partial ? `by ${formatPeriod(s.end![0], ind.frequency)}` : 'at the end'}`,
+    ].filter(Boolean).join(', ');
+  const lead = `${termHeading(p, ind)} (${termYears(p)}): ${fig}.`;
+  const tail = ' Year by year, against the trend inherited and other terms.';
+  return lead.length + tail.length <= 160 ? lead + tail : `${lead} Year by year.`;
 }
 
 /** Observations the term figure is built from. */
