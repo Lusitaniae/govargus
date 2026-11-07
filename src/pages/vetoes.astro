@@ -1,0 +1,91 @@
+---
+// Vetoes by president, every president, from the House historian's table:
+// regular and pocket vetoes, and how many Congress overrode.
+import Layout from '../layouts/Layout.astro';
+import BarList from '../components/BarList.astro';
+import { presidents, formatDate } from '../lib/data';
+import { breadcrumbs, termYears } from '../lib/seo';
+import { vetoes, isCurrent, RECORD_PAGES, n, WORDS } from '../lib/records';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const rows = vetoes.presidents;
+const recent = rows.filter((r) => r.slug).map((r) => ({ ...r, p: presidents.find((p) => p.slug === r.slug)! }));
+const first = recent[0].p.start.slice(0, 4);
+const most = [...rows].sort((a, b) => b.total - a.total)[0];
+const mostRecent = [...recent].filter((r) => !isCurrent(r.p)).sort((a, b) => b.total - a.total)[0];
+const fewestRecent = [...recent].filter((r) => !isCurrent(r.p)).sort((a, b) => a.total - b.total)[0];
+const overriddenRecent = [...recent].sort((a, b) => b.overridden - a.overridden)[0];
+const none = rows.filter((r) => r.total === 0);
+const cur = recent.find((r) => isCurrent(r.p));
+const plural = (v: number, word: string) => `${n(v)} ${word}${v === 1 ? '' : 's'}`;
+const fewestTied = recent.filter((r) => !isCurrent(r.p) && r.total === fewestRecent.total);
+// "Barack Obama", or "George W. Bush and Barack Obama" when tied.
+const names = (rs: { p: { name: string } }[]) => rs.map((r) => r.p.name).join(rs.length === 2 ? ' and ' : ', ');
+
+const answer = [
+  `${most.president} vetoed the most bills of any president, ${n(most.total)} (${n(most.regular)} regular and ${n(most.pocket)} pocket vetoes), and Congress overrode ${n(most.overridden)}.`,
+  `Since ${first}, ${mostRecent.p.name} vetoed the most, ${n(mostRecent.total)}, with ${plural(mostRecent.overridden, 'override')}; ${names(fewestTied)} vetoed the fewest, ${n(fewestRecent.total)}${fewestTied.length > 1 ? ' each' : ''}.`,
+  overriddenRecent !== mostRecent && `${overriddenRecent.p.name} had the most overridden since ${first}: ${n(overriddenRecent.overridden)} of ${n(overriddenRecent.total)}.`,
+  cur && `${cur.p.name} has vetoed ${plural(cur.total, 'bill')} so far${cur.overridden ? `, ${n(cur.overridden)} overridden` : ''}.`,
+  none.length > 0 && `${(WORDS[none.length] ?? String(none.length)).replace(/^./, (c) => c.toUpperCase())} presidents never vetoed a bill.`,
+].filter(Boolean).join(' ');
+---
+<Layout
+  title={`Vetoes by president, 1789–${new Date().getUTCFullYear()}`}
+  description={`Bills vetoed by every president since Washington, with pocket vetoes and overrides: ${recent.slice().reverse().slice(0, 3).map((r) => `${r.p.name.replace(/ \((\w+) term\)/, ' ($1)')} ${r.total}${isCurrent(r.p) ? ' so far' : ''}`).join(', ')}.`}
+  schema={breadcrumbs([['Policy timeline', '/events'], ['Vetoes by president', '/vetoes']])}
+>
+  <p class="small"><a href={`${base}/events`}>Policy timeline</a></p>
+  <h1>Vetoes by president</h1>
+  <p class="lede">
+    A regular veto sends a bill back to Congress, which can override it with a two-thirds vote in both chambers.
+    A pocket veto happens when Congress adjourns before the president signs; it can't be overridden.
+  </p>
+  <p class="answer">{answer}</p>
+
+  <h2>Since {first}</h2>
+  <BarList
+    label={`Vetoes by president since ${first}`}
+    rows={recent.slice().reverse().map((r) => ({
+      label: r.p.name, href: `${base}/presidents/${r.p.slug}`, sub: termYears(r.p),
+      value: r.total, display: `${n(r.total)}${isCurrent(r.p) ? ' so far' : ''}${r.overridden ? ` · ${n(r.overridden)} overridden` : ''}`,
+      partial: isCurrent(r.p),
+    }))}
+  />
+
+  <h2>Every president</h2>
+  <p class="lede small">Counted by the Congresses each president served with. Grover Cleveland and Donald Trump appear once for each of their non-consecutive terms.</p>
+  <div class="table-scroll">
+    <table class="data">
+      <thead><tr><th>President</th><th>Congresses</th><th>Regular</th><th>Pocket</th><th>Total</th><th>Overridden</th></tr></thead>
+      <tbody>
+        {rows.slice().reverse().map((r) => (
+          <tr>
+            <td>{r.slug ? <a href={`${base}/presidents/${r.slug}`}>{r.president}</a> : r.president}</td>
+            <td>{r.congresses}</td>
+            <td>{n(r.regular)}</td>
+            <td>{n(r.pocket)}</td>
+            <td><b>{n(r.total)}</b></td>
+            <td>{n(r.overridden)}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  <p class="small muted">
+    Source: {vetoes.source.publisher}, <a href={vetoes.source.page}>{vetoes.source.label}</a>, fetched {formatDate(vetoes.fetched)}.
+    Footnotes on the source page explain how contested pocket vetoes, claimed during short recesses, are counted.
+  </p>
+
+  <h2>More presidential records</h2>
+  <ul class="related">
+    {RECORD_PAGES.filter((r) => r.path !== '/vetoes').map((r) => <li><a href={`${base}${r.path}`}>{r.label}</a></li>)}
+  </ul>
+</Layout>
+
+<style>
+  .answer { max-width: 68ch; font-size: 17px; }
+  .related { padding-left: 20px; }
+  .related li { margin: 4px 0; }
+  table.data td:nth-child(2) { white-space: nowrap; }
+</style>

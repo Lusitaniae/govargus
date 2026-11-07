@@ -1,0 +1,433 @@
+{
+ "source": {
+  "publisher": "US House of Representatives, Office of the Historian",
+  "label": "Presidential Vetoes",
+  "page": "https://history.house.gov/Institution/Presidential-Vetoes/Presidential-Vetoes/"
+ },
+ "fetched": "2026-11-07",
+ "presidents": [
+  {
+   "president": "George Washington",
+   "congresses": "1st–4th",
+   "slug": null,
+   "regular": 2,
+   "pocket": 0,
+   "total": 2,
+   "overridden": 0
+  },
+  {
+   "president": "John Adams",
+   "congresses": "5th–6th",
+   "slug": null,
+   "regular": 0,
+   "pocket": 0,
+   "total": 0,
+   "overridden": 0
+  },
+  {
+   "president": "Thomas Jefferson",
+   "congresses": "7th–10th",
+   "slug": null,
+   "regular": 0,
+   "pocket": 0,
+   "total": 0,
+   "overridden": 0
+  },
+  {
+   "president": "James Madison",
+   "congresses": "11th–14th",
+   "slug": null,
+   "regular": 5,
+   "pocket": 2,
+   "total": 7,
+   "overridden": 0
+  },
+  {
+   "president": "James Monroe",
+   "congresses": "15th–18th",
+   "slug": null,
+   "regular": 1,
+   "pocket": 0,
+   "total": 1,
+   "overridden": 0
+  },
+  {
+   "president": "John Quincy Adams",
+   "congresses": "19th–20th",
+   "slug": null,
+   "regular": 0,
+   "pocket": 0,
+   "total": 0,
+   "overridden": 0
+  },
+  {
+   "president": "Andrew Jackson",
+   "congresses": "21st–24th",
+   "slug": null,
+   "regular": 5,
+   "pocket": 7,
+   "total": 12,
+   "overridden": 0
+  },
+  {
+   "president": "Martin Van Buren",
+   "congresses": "25th–26th",
+   "slug": null,
+   "regular": 0,
+   "pocket": 1,
+   "total": 1,
+   "overridden": 0
+  },
+  {
+   "president": "William Henry Harrison",
+   "congresses": "27th",
+   "slug": null,
+   "regular": 0,
+   "pocket": 0,
+   "total": 0,
+   "overridden": 0
+  },
+  {
+   "president": "John Tyler",
+   "congresses": "27th–28th",
+   "slug": null,
+   "regular": 6,
+   "pocket": 4,
+   "total": 10,
+   "overridden": 1
+  },
+  {
+   "president": "James K. Polk",
+   "congresses": "29th–30th",
+   "slug": null,
+   "regular": 2,
+   "pocket": 1,
+   "total": 3,
+   "overridden": 0
+  },
+  {
+   "president": "Zachary Taylor",
+   "congresses": "31st",
+   "slug": null,
+   "regular": 0,
+   "pocket": 0,
+   "total": 0,
+   "overridden": 0
+  },
+  {
+   "president": "Millard Fillmore",
+   "congresses": "31st–32nd",
+   "slug": null,
+   "regular": 0,
+   "pocket": 0,
+   "total": 0,
+   "overridden": 0
+  },
+  {
+   "president": "Franklin Pierce",
+   "congresses": "33rd–34th",
+   "slug": null,
+   "regular": 9,
+   "pocket": 0,
+   "total": 9,
+   "overridden": 5
+  },
+  {
+   "president": "James Buchanan",
+   "congresses": "35th–36th",
+   "slug": null,
+   "regular": 4,
+   "pocket": 3,
+   "total": 7,
+   "overridden": 0
+  },
+  {
+   "president": "Abraham Lincoln",
+   "congresses": "37th–39th",
+   "slug": null,
+   "regular": 2,
+   "pocket": 5,
+   "total": 7,
+   "overridden": 0
+  },
+  {
+   "president": "Andrew Johnson",
+   "congresses": "39th–40th",
+   "slug": null,
+   "regular": 21,
+   "pocket": 8,
+   "total": 29,
+   "overridden": 15
+  },
+  {
+   "president": "Ulysses S. Grant",
+   "congresses": "41st–44th",
+   "slug": null,
+   "regular": 45,
+   "pocket": 48,
+   "total": 93,
+   "overridden": 4
+  },
+  {
+   "president": "Rutherford B. Hayes",
+   "congresses": "45th–46th",
+   "slug": null,
+   "regular": 12,
+   "pocket": 1,
+   "total": 13,
+   "overridden": 1
+  },
+  {
+   "president": "James A. Garfield",
+   "congresses": "47th",
+   "slug": null,
+   "regular": 0,
+   "pocket": 0,
+   "total": 0,
+   "overridden": 0
+  },
+  {
+   "president": "Chester A. Arthur",
+   "congresses": "47th–48th",
+   "slug": null,
+   "regular": 4,
+   "pocket": 8,
+   "total": 12,
+   "overridden": 1
+  },
+  {
+   "president": "Grover Cleveland",
+   "congresses": "49th–50th",
+   "slug": null,
+   "regular": 304,
+   "pocket": 110,
+   "total": 414,
+   "overridden": 2
+  },
+  {
+   "president": "Benjamin Harrison",
+   "congresses": "51st–52nd",
+   "slug": null,
+   "regular": 19,
+   "pocket": 25,
+   "total": 44,
+   "overridden": 1
+  },
+  {
+   "president": "Grover Cleveland",
+   "congresses": "53rd–54th",
+   "slug": null,
+   "regular": 42,
+   "pocket": 128,
+   "total": 170,
+   "overridden": 5
+  },
+  {
+   "president": "William McKinley",
+   "congresses": "55th–57th",
+   "slug": null,
+   "regular": 6,
+   "pocket": 36,
+   "total": 42,
+   "overridden": 0
+  },
+  {
+   "president": "Theodore Roosevelt",
+   "congresses": "57th–60th",
+   "slug": null,
+   "regular": 42,
+   "pocket": 40,
+   "total": 82,
+   "overridden": 1
+  },
+  {
+   "president": "William H. Taft",
+   "congresses": "61st–62nd",
+   "slug": null,
+   "regular": 30,
+   "pocket": 9,
+   "total": 39,
+   "overridden": 1
+  },
+  {
+   "president": "Woodrow Wilson",
+   "congresses": "63rd–66th",
+   "slug": null,
+   "regular": 33,
+   "pocket": 11,
+   "total": 44,
+   "overridden": 6
+  },
+  {
+   "president": "Warren G. Harding",
+   "congresses": "67th",
+   "slug": null,
+   "regular": 5,
+   "pocket": 1,
+   "total": 6,
+   "overridden": 0
+  },
+  {
+   "president": "Calvin Coolidge",
+   "congresses": "68th–70th",
+   "slug": null,
+   "regular": 20,
+   "pocket": 30,
+   "total": 50,
+   "overridden": 4
+  },
+  {
+   "president": "Herbert C. Hoover",
+   "congresses": "71st–72nd",
+   "slug": null,
+   "regular": 21,
+   "pocket": 16,
+   "total": 37,
+   "overridden": 3
+  },
+  {
+   "president": "Franklin D. Roosevelt",
+   "congresses": "73rd–79th",
+   "slug": null,
+   "regular": 372,
+   "pocket": 263,
+   "total": 635,
+   "overridden": 9
+  },
+  {
+   "president": "Harry S. Truman",
+   "congresses": "79th–82nd",
+   "slug": null,
+   "regular": 180,
+   "pocket": 70,
+   "total": 250,
+   "overridden": 12
+  },
+  {
+   "president": "Dwight D. Eisenhower",
+   "congresses": "83rd–86th",
+   "slug": null,
+   "regular": 73,
+   "pocket": 108,
+   "total": 181,
+   "overridden": 2
+  },
+  {
+   "president": "John F. Kennedy",
+   "congresses": "87th–88th",
+   "slug": null,
+   "regular": 12,
+   "pocket": 9,
+   "total": 21,
+   "overridden": 0
+  },
+  {
+   "president": "Lyndon B. Johnson",
+   "congresses": "88th–90st",
+   "slug": null,
+   "regular": 16,
+   "pocket": 14,
+   "total": 30,
+   "overridden": 0
+  },
+  {
+   "president": "Richard M. Nixon",
+   "congresses": "91st–93rd",
+   "slug": null,
+   "regular": 26,
+   "pocket": 17,
+   "total": 43,
+   "overridden": 7
+  },
+  {
+   "president": "Gerald R. Ford",
+   "congresses": "93rd–94th",
+   "slug": null,
+   "regular": 48,
+   "pocket": 18,
+   "total": 66,
+   "overridden": 12
+  },
+  {
+   "president": "James Earl Carter",
+   "congresses": "95th–96th",
+   "slug": "carter",
+   "regular": 13,
+   "pocket": 18,
+   "total": 31,
+   "overridden": 2
+  },
+  {
+   "president": "Ronald Reagan",
+   "congresses": "97th–100th",
+   "slug": "reagan",
+   "regular": 39,
+   "pocket": 39,
+   "total": 78,
+   "overridden": 9
+  },
+  {
+   "president": "George H. W. Bush",
+   "congresses": "101st–102nd",
+   "slug": "bush-41",
+   "regular": 29,
+   "pocket": 15,
+   "total": 44,
+   "overridden": 1
+  },
+  {
+   "president": "William J. Clinton",
+   "congresses": "103rd–106th",
+   "slug": "clinton",
+   "regular": 36,
+   "pocket": 1,
+   "total": 37,
+   "overridden": 2
+  },
+  {
+   "president": "George W. Bush",
+   "congresses": "107th–110th",
+   "slug": "bush-43",
+   "regular": 12,
+   "pocket": 0,
+   "total": 12,
+   "overridden": 4
+  },
+  {
+   "president": "Barack H. Obama",
+   "congresses": "111th–114th",
+   "slug": "obama",
+   "regular": 12,
+   "pocket": 0,
+   "total": 12,
+   "overridden": 1
+  },
+  {
+   "president": "Donald J. Trump",
+   "congresses": "115th–116th",
+   "slug": "trump-2017",
+   "regular": 10,
+   "pocket": 0,
+   "total": 10,
+   "overridden": 1
+  },
+  {
+   "president": "Joseph R. Biden, Jr.",
+   "congresses": "117th–118th",
+   "slug": "biden",
+   "regular": 13,
+   "pocket": 0,
+   "total": 13,
+   "overridden": 0
+  },
+  {
+   "president": "Donald J. Trump",
+   "congresses": "119th",
+   "slug": "trump-2025",
+   "regular": 2,
+   "pocket": 0,
+   "total": 2,
+   "overridden": 0
+  }
+ ]
+}

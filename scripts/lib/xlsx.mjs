@@ -31,12 +31,28 @@ const decode = (s) => s
 const texts = (xml) => [...xml.matchAll(/<t(?:\s[^>]*)?>([^<]*)<\/t>/g)].map((m) => decode(m[1])).join('');
 const colIndex = (ref) => [...ref.replace(/\d+/g, '')].reduce((n, ch) => n * 26 + ch.charCodeAt(0) - 64, 0) - 1;
 
-export function readXlsx(buf) {
+/** The worksheet file for a sheet name, through workbook.xml and its relationships. */
+function sheetPath(files, name) {
+  const workbook = files.get('xl/workbook.xml')();
+  const sheet = [...workbook.matchAll(/<sheet\s[^>]*>/g)].map((m) => m[0])
+    .find((tag) => decode(tag.match(/\bname="([^"]*)"/)?.[1] ?? '') === name);
+  if (!sheet) throw new Error(`no sheet named "${name}"`);
+  const rid = sheet.match(/\br:id="([^"]+)"/)[1];
+  const rel = [...files.get('xl/_rels/workbook.xml.rels')().matchAll(/<Relationship\s[^>]*>/g)].map((m) => m[0])
+    .find((tag) => tag.includes(`Id="${rid}"`));
+  const target = rel.match(/\bTarget="([^"]+)"/)[1];
+  return target.startsWith('/') ? target.slice(1) : `xl/${target}`;
+}
+
+/** Rows of the first sheet, or of the sheet called `sheet`. */
+export function readXlsx(buf, { sheet: wanted } = {}) {
   const files = unzip(buf);
   const shared = files.has('xl/sharedStrings.xml')
     ? [...files.get('xl/sharedStrings.xml')().matchAll(/<si>([\s\S]*?)<\/si>/g)].map((m) => texts(m[1]))
     : [];
-  const sheetName = [...files.keys()].filter((n) => /^xl\/worksheets\/sheet\d+\.xml$/.test(n)).sort()[0];
+  const sheetName = wanted
+    ? sheetPath(files, wanted)
+    : [...files.keys()].filter((n) => /^xl\/worksheets\/sheet\d+\.xml$/.test(n)).sort()[0];
   const sheet = files.get(sheetName)();
   const rows = [];
   for (const [, body] of sheet.matchAll(/<row[^>]*>([\s\S]*?)<\/row>/g)) {

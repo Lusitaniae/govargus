@@ -47,6 +47,47 @@ if (sorted.some((e, i) => e !== events[i])) errors.push('events.json is not sort
 
 for (const ind of indicators) if (!ind.keyword || ind.keyword !== ind.keyword.trim()) errors.push(`${ind.id}: needs a "keyword" (the search phrase)`);
 
+// --- presidential records (scripts/fetch-records.mjs, plus hand-entered EO ranges) ---
+const slugs = new Set(presidents.map((p) => p.slug));
+const isCount = (v) => Number.isInteger(v) && v >= 0;
+const loadIf = async (f) => { try { return await load(f); } catch { errors.push(`${f}: missing (run make records)`); return null; } };
+
+const vetoes = await loadIf('records/vetoes.json');
+if (vetoes) {
+  for (const r of vetoes.presidents) {
+    if (r.slug && !slugs.has(r.slug)) errors.push(`vetoes: unknown president ${r.slug}`);
+    if (![r.regular, r.pocket, r.overridden].every(isCount) || r.regular + r.pocket !== r.total) errors.push(`vetoes: bad counts for ${r.president}`);
+  }
+}
+const clemency = await loadIf('records/clemency.json');
+if (clemency) {
+  for (const [slug, t] of Object.entries(clemency.terms)) {
+    if (!slugs.has(slug)) errors.push(`clemency: unknown president ${slug}`);
+    if (![t.pardons, t.commutations, t.remissions].every(isCount)) errors.push(`clemency: bad counts for ${slug}`);
+  }
+}
+const deport = await loadIf('records/deportations.json');
+if (deport) {
+  deport.years.forEach((y, i) => {
+    if (i && y.fy !== deport.years[i - 1].fy + 1) errors.push(`deportations: gap before FY${y.fy}`);
+    if (![y.removals, y.returns, y.expulsions].every(isCount)) errors.push(`deportations: bad counts for FY${y.fy}`);
+  });
+}
+// Order-number ranges must agree with the order-by-order count wherever both exist.
+const ranges = await loadIf('records/executive-order-ranges.json');
+if (ranges) {
+  const orders = await load('policy/executive-orders.json');
+  for (const [slug, [lo, hi]] of Object.entries(ranges.ranges)) {
+    const p = presidents.find((x) => x.slug === slug);
+    if (!p) { errors.push(`executive-order-ranges: unknown president ${slug}`); continue; }
+    if (!(hi >= lo)) errors.push(`executive-order-ranges: ${slug} range is backwards`);
+    if (orders[0] && orders[0].date <= p.start) {
+      const n = orders.filter((o) => o.date >= p.start && o.date < (p.end ?? '9999')).length;
+      if (n !== hi - lo + 1) errors.push(`executive-order-ranges: ${slug} spans ${hi - lo + 1} numbers but the Federal Register lists ${n} orders`);
+    }
+  }
+}
+
 if (errors.length) {
   console.error(errors.map((e) => `  ✗ ${e}`).join('\n'));
   process.exit(1);

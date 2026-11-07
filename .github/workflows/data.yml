@@ -27,6 +27,9 @@ jobs:
         env:
           # Free key from https://api.data.gov/signup/; falls back to DEMO_KEY.
           CONGRESS_API_KEY: ${{ secrets.CONGRESS_API_KEY }}
+      - id: records
+        run: node scripts/fetch-records.mjs
+        continue-on-error: true
       - run: node scripts/check-data.mjs
       # Don't push data the site can't build from: every push to master deploys.
       - run: npm ci && npx astro build
@@ -41,7 +44,7 @@ jobs:
           git commit -m "data: weekly refresh $(date -u +%Y-%m-%d)"
           git push
       - name: Fail if a fetch failed
-        if: steps.data.outcome == 'failure' || steps.policy.outcome == 'failure'
+        if: steps.data.outcome == 'failure' || steps.policy.outcome == 'failure' || steps.records.outcome == 'failure'
         run: |
-          echo "data: ${{ steps.data.outcome }}, policy: ${{ steps.policy.outcome }}"
+          echo "data: ${{ steps.data.outcome }}, policy: ${{ steps.policy.outcome }}, records: ${{ steps.records.outcome }}"
           exit 1

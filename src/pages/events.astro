@@ -3,6 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import LineChart from '../components/LineChart.astro';
 import { events, indicators, presidentAt, formatDate, KIND_LABEL, today } from '../lib/data';
 import { laws, executiveOrders, coverage, perYear, lawsIndicator, ordersIndicator } from '../lib/policy';
+import { RECORD_PAGES } from '../lib/records';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const nameOf = Object.fromEntries(indicators.map((i) => [i.id, i.name]));
 const list = events.slice().reverse();
@@ -11,8 +12,8 @@ const orderPoints = perYear(executiveOrders.map((o) => o.date), coverage.orders)
 const thisYear = today().slice(0, 4);
 ---
 <Layout
-  title="Laws, executive orders and policy events by president"
-  description="Every public law and executive order counted by year and administration, plus the laws, trade actions, Fed decisions and shocks that moved US indicators."
+  title="Laws signed by president and the policy timeline"
+  description="Every public law counted by year and administration since 1981, plus the laws, trade actions, Fed decisions and shocks that moved US indicators."
 >
   <h1>Policy timeline</h1>
   <p class="lede">
@@ -38,13 +39,18 @@ const thisYear = today().slice(0, 4);
         <h3>Executive orders signed</h3>
         <p class="muted small">
           {executiveOrders.length.toLocaleString('en-US')} orders since {coverage.orders!.slice(0, 4)}, from the Federal Register.
-          Earlier orders aren't available in machine-readable form.
+          Totals for every term since 1977: <a href={`${base}/executive-orders`}>executive orders by president</a>.
         </p>
         <LineChart indicator={ordersIndicator} points={orderPoints} from={orderPoints[0][0]} bars showRecessions={false} size="card" width={600} />
       </section>
     )}
   </div>
   <p class="small muted">{thisYear} is the year so far. Sources: <a href="https://www.congress.gov/">Congress.gov</a>, <a href="https://www.federalregister.gov/">Federal Register</a>. Full lists are on each president's page.</p>
+
+  <h2>Presidential records, term by term</h2>
+  <ul class="records">
+    {RECORD_PAGES.map((r) => <li><a href={`${base}${r.path}`}>{r.label}</a></li>)}
+  </ul>
 
   <h2>Major events</h2>
   <p class="lede small">Each event is tagged with the indicators it plausibly moved, and marked on those charts.</p>
@@ -72,6 +78,8 @@ const thisYear = today().slice(0, 4);
 <style>
   .counts { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
   .counts p { margin: 4px 0 8px; }
+  .records { padding-left: 20px; }
+  .records li { margin: 4px 0; }
   .events { list-style: none; padding: 0; margin: 0; max-width: 760px; }
   .events li { padding: 14px 0; border-bottom: 1px solid var(--grid); }
   .meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }

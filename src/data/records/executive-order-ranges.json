@@ -1,0 +1,17 @@
+{
+  "source": {
+    "publisher": "National Archives, Office of the Federal Register",
+    "label": "Executive Orders Disposition Tables",
+    "page": "https://www.archives.gov/federal-register/executive-orders/disposition"
+  },
+  "checked": "2026-11-07",
+  "note": "First and last executive order number of each administration, from the disposition tables. Used for terms that began before the Federal Register API's record (1994); later terms are counted from src/data/policy/executive-orders.json, and these ranges cross-check them.",
+  "ranges": {
+    "carter": [11967, 12286],
+    "reagan": [12287, 12667],
+    "bush-41": [12668, 12833],
+    "clinton": [12834, 13197],
+    "bush-43": [13198, 13488],
+    "obama": [13489, 13764]
+  }
+}

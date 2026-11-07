@@ -3,6 +3,7 @@
 import { indicators, presidents, seriesFor, termEnd, CHART_FROM } from '../lib/data';
 import { abs } from '../lib/seo';
 import { termPages, termPath } from '../lib/term';
+import { RECORD_PAGES, vetoes, clemency, deportations } from '../lib/records';
 
 export function GET() {
   // lastmod is when a page's data was last fetched; pages built from every series take the newest.
@@ -10,6 +11,9 @@ export function GET() {
   const newest = indicators.map((i) => fetched(i.id)).sort().at(-1)!;
   const paths: [string, string?][] = [
     ['/', newest], ['/presidents'], ['/compare', newest], ['/events'], ['/about'],
+    ...RECORD_PAGES.map((r): [string, string?] => [r.path, ({
+      '/vetoes': vetoes.fetched, '/pardons': clemency.fetched, '/deportations': deportations.fetched,
+    } as Record<string, string>)[r.path]]),
     ...indicators.flatMap((i): [string, string][] => [[`/indicators/${i.id}`, fetched(i.id)], [`/compare/${i.id}`, fetched(i.id)]]),
     ...presidents.filter((p) => termEnd(p) > CHART_FROM).map((p): [string, string] => [`/presidents/${p.slug}`, newest]),
     ...termPages().map(({ p, ind }): [string, string] => [termPath(p, ind), fetched(ind.id)]),

@@ -1,0 +1,109 @@
+---
+// Pardons and commutations by president since 1977, as counted by the Justice
+// Department's Office of the Pardon Attorney, which leaves out grants to whole
+// classes of people by proclamation.
+import Layout from '../layouts/Layout.astro';
+import BarList from '../components/BarList.astro';
+import { formatDate } from '../lib/data';
+import { breadcrumbs, termYears } from '../lib/seo';
+import { clemency, recordTerms, isCurrent, RECORD_PAGES, n, WORDS } from '../lib/records';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const terms = recordTerms()
+  .filter((p) => clemency.terms[p.slug])
+  .map((p) => {
+    const t = clemency.terms[p.slug];
+    return { p, ...t, total: t.pardons + t.commutations + t.remissions };
+  });
+const first = terms[0].p.start.slice(0, 4);
+const most = [...terms].sort((a, b) => b.total - a.total)[0];
+const mostPardons = [...terms].sort((a, b) => b.pardons - a.pardons)[0];
+const fewest = [...terms].filter((t) => !isCurrent(t.p)).sort((a, b) => a.total - b.total)[0];
+const cur = terms.find((t) => isCurrent(t.p));
+const [stats, current] = clemency.sources;
+const plural = (v: number, word: string) => `${n(v)} ${word}${v === 1 ? '' : 's'}`;
+const split = (t: (typeof terms)[number]) => `${plural(t.pardons, 'pardon')} and ${plural(t.commutations, 'commutation')}`;
+
+const answer = [
+  `Counting individual grants, ${most.p.name} granted the most clemency of any president since ${first}: ${n(most.total)} (${split(most)}).`,
+  mostPardons !== most && `${mostPardons.p.name} granted the most pardons, ${n(mostPardons.pardons)}.`,
+  `${fewest.p.name} granted the fewest, ${n(fewest.total)}.`,
+  cur && `${cur.p.name} has granted ${split(cur)} so far${cur.proclamations?.length ? `, plus ${cur.proclamations.length === 1 ? 'a proclamation' : `${WORDS[cur.proclamations.length] ?? cur.proclamations.length} proclamations`} pardoning whole groups, which these counts leave out` : ''}.`,
+].filter(Boolean).join(' ');
+---
+<Layout
+  title={`Pardons by president, ${first}–${new Date().getUTCFullYear()}: pardons and commutations`}
+  description={`Pardons and commutations granted by every president since ${first}, from Justice Department records: ${terms.slice().reverse().slice(0, 3).map((t) => `${t.p.name.replace(/ \((\w+) term\)/, ' ($1)')} ${n(t.total)}${isCurrent(t.p) ? ' so far' : ''}`).join(', ')}.`}
+  schema={breadcrumbs([['Policy timeline', '/events'], ['Pardons by president', '/pardons']])}
+>
+  <p class="small"><a href={`${base}/events`}>Policy timeline</a></p>
+  <h1>Pardons and commutations by president</h1>
+  <p class="lede">
+    A pardon forgives a federal conviction. A commutation shortens a sentence without erasing the conviction.
+    A remission cancels a fine or forfeiture. Together they are executive clemency.
+  </p>
+  <p class="answer">{answer}</p>
+
+  <BarList
+    label="Clemency grants by president"
+    rows={terms.slice().reverse().map((t) => ({
+      label: t.p.name, href: `${base}/presidents/${t.p.slug}`, sub: termYears(t.p),
+      value: t.total, display: `${n(t.total)}${isCurrent(t.p) ? ' so far' : ''}`, partial: isCurrent(t.p),
+    }))}
+  />
+
+  <h2>Every term</h2>
+  <div class="table-scroll">
+    <table class="data">
+      <thead><tr><th>President</th><th>Pardons</th><th>Commutations</th><th>Remissions</th><th>Total</th></tr></thead>
+      <tbody>
+        {terms.slice().reverse().map((t) => (
+          <tr>
+            <td><a href={`${base}/presidents/${t.p.slug}`}>{t.p.name}</a><br /><span class="muted small">{termYears(t.p)}</span></td>
+            <td>{n(t.pardons)}</td>
+            <td>{n(t.commutations)}</td>
+            <td>{n(t.remissions)}</td>
+            <td><b>{n(t.total)}</b>{isCurrent(t.p) && <span class="muted"> so far</span>}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  <h2>What these counts leave out</h2>
+  <ul class="notes">
+    <li>
+      The Pardon Attorney counts clemency warrants, one per person, including people who never filed a petition.
+      It does not count members of a class pardoned by proclamation, such as Jimmy Carter's 1977 pardon of Vietnam-era draft evaders
+      or Joe Biden's 2022 and 2023 proclamations for simple marijuana possession, because it has no list of the people covered.
+    </li>
+    {cur?.proclamations?.length && (
+      <li>
+        Proclamations by {cur.p.name}, not counted above:{' '}
+        {cur.proclamations.map((pr, i) => <>{i > 0 && '; '}{formatDate(pr.date)}, “{pr.title}”</>)}.
+      </li>
+    )}
+    <li>A person granted two kinds of relief at once is counted once, unless separate warrants were signed.</li>
+    <li>
+      Terms through {stats.updated ?? 'January 2025'} come from the Pardon Attorney's statistics.
+      {cur && ` ${cur.p.name}'s grants are added up from the office's list of grants by date, which re-lists amended warrants; those are counted once.`}
+    </li>
+  </ul>
+  <p class="small muted">
+    Sources: {stats.publisher}, <a href={stats.page}>{stats.label}</a>
+    {current && <> and <a href={current.page}>{current.label}</a></>}, fetched {formatDate(clemency.fetched)}.
+  </p>
+
+  <h2>More presidential records</h2>
+  <ul class="related">
+    {RECORD_PAGES.filter((r) => r.path !== '/pardons').map((r) => <li><a href={`${base}${r.path}`}>{r.label}</a></li>)}
+  </ul>
+</Layout>
+
+<style>
+  .answer { max-width: 68ch; font-size: 17px; }
+  .notes { max-width: 72ch; padding-left: 20px; }
+  .notes li { margin: 6px 0; }
+  .related { padding-left: 20px; }
+  .related li { margin: 4px 0; }
+</style>

@@ -4,6 +4,7 @@ import { groups, indicators, seriesFor, formatValue, formatPeriod, formatDate } 
 import { abs, indicatorTitle, presidentTitle } from '../lib/seo';
 import { presidentsShown, markdownResponse } from '../lib/markdown';
 import { termPages, termPath, termTitle } from '../lib/term';
+import { RECORD_PAGES } from '../lib/records';
 
 export function GET() {
   const refreshed = indicators.map((i) => seriesFor(i.id).fetched).sort().at(-1)!;
@@ -29,6 +30,10 @@ export function GET() {
     '## Presidents',
     '',
     ...presidentsShown().slice().reverse().map((p) => `- [${presidentTitle(p)}](${abs(`/presidents/${p.slug}.md`)})`),
+    '',
+    '## Presidential records',
+    '',
+    ...RECORD_PAGES.map((r) => `- [${r.label}](${abs(r.path)})`),
     '',
     '## One indicator under one president',
     '',

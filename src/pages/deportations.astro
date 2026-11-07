@@ -1,0 +1,123 @@
+---
+// Deportations by president since FY1977, from DHS statistics: removals (formal
+// deportations), returns, and the Title 42 expulsions of 2020–2023, each fiscal
+// year credited to the president in office for most of it.
+import Layout from '../layouts/Layout.astro';
+import BarList from '../components/BarList.astro';
+import { formatDate } from '../lib/data';
+import { breadcrumbs, termYears } from '../lib/seo';
+import { deportations, deportationTerms, presidentOfFiscalYear, isCurrent, termLength, RECORD_PAGES, n } from '../lib/records';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const terms = deportationTerms();
+const withData = terms.filter((t) => t.years.length > 0);
+const complete = withData.filter((t) => t.missing.length === 0);
+const firstFy = deportations.years[0].fy;
+const lastFy = deportations.years.at(-1)!.fy;
+const mostRemovals = [...complete].sort((a, b) => b.removals - a.removals)[0];
+const perYear = (t: (typeof terms)[number], k: 'removals' | 'returns') => t[k] / t.years.length;
+const fastest = [...complete].sort((a, b) => perYear(b, 'removals') - perYear(a, 'removals'))[0];
+const mostReturns = [...complete].sort((a, b) => b.returns - a.returns)[0];
+const expelled = complete.filter((t) => t.expulsions > 0);
+const cur = terms.find((t) => isCurrent(t.p));
+const millions = (v: number) => (v >= 1e6 ? `${(v / 1e6).toFixed(2)} million` : n(Math.round(v / 1000) * 1000));
+const removalsTitle = `Deportations by president: removals and returns since ${firstFy}`;
+
+const answer = [
+  `Counting removals, the formal deportations that carry penalties on re-entry, the most since ${firstFy} were under ${mostRemovals.p.name}: ${millions(mostRemovals.removals)} in ${termLength(mostRemovals.p)}.`,
+  fastest !== mostRemovals && `The fastest pace was under ${fastest.p.name}, about ${n(Math.round(perYear(fastest, 'removals') / 1000) * 1000)} a year.`,
+  `Returns, departures without a removal order, peaked under ${mostReturns.p.name}: ${millions(mostReturns.returns)} in ${termLength(mostReturns.p)}.`,
+  expelled.length > 0 && `Under ${expelled.map((t) => t.p.name).join(' and ')}, a further ${millions(expelled.reduce((a, t) => a + t.expulsions, 0))} expulsions were made under the Title 42 public-health order of 2020–2023.`,
+  cur && cur.years.length === 0 && `DHS has not yet published removal statistics for ${cur.p.name}: its latest release covers fiscal year ${lastFy}.`,
+].filter(Boolean).join(' ');
+---
+<Layout
+  title={removalsTitle}
+  description={`Removals, returns and Title 42 expulsions under every president since ${firstFy}, from DHS. Removals: ${complete.slice().reverse().slice(0, 3).map((t) => `${t.p.name.replace(/ \((\w+) term\)/, ' ($1)')} ${millions(t.removals)}`).join(', ')}.`}
+  schema={breadcrumbs([['Policy timeline', '/events'], ['Deportations by president', '/deportations']])}
+>
+  <p class="small"><a href={`${base}/events`}>Policy timeline</a></p>
+  <h1>Deportations by president</h1>
+  <p class="lede">
+    DHS counts three ways of sending people out of the country. <b>Removals</b> follow a removal order and carry penalties if the person returns.{' '}
+    <b>Returns</b> are confirmed departures without an order, often of people stopped at or near the border. <b>Expulsions</b> were made under
+    the Title 42 public-health order from March 2020 to May 2023.
+  </p>
+  <p class="answer">{answer}</p>
+
+  <h2>Removals by president</h2>
+  <BarList
+    label="Removals by president"
+    rows={terms.slice().reverse().map((t) => ({
+      label: t.p.name, href: `${base}/presidents/${t.p.slug}`, sub: termYears(t.p),
+      value: t.removals,
+      display: t.years.length === 0 ? 'not published yet' : `${n(t.removals)}${t.missing.length ? ` (FY${t.years[0].fy}–${t.years.at(-1)!.fy} only)` : ''}`,
+      partial: t.missing.length > 0,
+    }))}
+  />
+
+  <h2>Every term</h2>
+  <div class="table-scroll">
+    <table class="data">
+      <thead><tr><th>President</th><th>Fiscal years</th><th>Removals</th><th>Per year</th><th>Returns</th><th>Title 42 expulsions</th></tr></thead>
+      <tbody>
+        {terms.slice().reverse().map((t) => (
+          <tr>
+            <td><a href={`${base}/presidents/${t.p.slug}`}>{t.p.name}</a><br /><span class="muted small">{termYears(t.p)}</span></td>
+            <td>{t.years.length ? `${t.years[0].fy}–${t.years.at(-1)!.fy}` : '—'}{t.missing.length > 0 && <><br /><span class="muted small">{t.missing.map((fy) => `FY${fy}`).join(', ')} not published</span></>}</td>
+            <td><b>{t.years.length ? n(t.removals) : '—'}</b></td>
+            <td>{t.years.length ? n(Math.round(perYear(t, 'removals'))) : '—'}</td>
+            <td>{t.years.length ? n(t.returns) : '—'}</td>
+            <td>{t.expulsions ? n(t.expulsions) : '—'}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  <h2>By fiscal year</h2>
+  <p class="lede small">Federal fiscal years run from October to September. Each is credited to the president in office for most of it, so FY2009 (October 2008 to September 2009) counts for Barack Obama.</p>
+  <div class="table-scroll">
+    <table class="data">
+      <thead><tr><th>Fiscal year</th><th>Removals</th><th>Returns</th><th>Expulsions</th><th>President</th></tr></thead>
+      <tbody>
+        {deportations.years.slice().reverse().map((y) => {
+          const p = presidentOfFiscalYear(y.fy);
+          return (
+            <tr>
+              <td>{y.fy}{y.source !== 'yearbook' && <span class="muted small"> preliminary</span>}</td>
+              <td>{n(y.removals)}</td>
+              <td>{n(y.returns)}</td>
+              <td>{y.expulsions ? n(y.expulsions) : '—'}</td>
+              <td>{p ? <a href={`${base}/presidents/${p.slug}`}>{p.name}</a> : ''}</td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Notes</h2>
+  <ul class="notes">
+    <li>DHS rounds every figure to the nearest 10.</li>
+    <li>Returns combine enforcement and administrative returns. DHS counts crew members detained on board their vessels as administrative returns from 2009, and withdrawn applications for admission from 2018.</li>
+    <li>Fiscal year 1977 includes the last months of Gerald Ford's term, and every first fiscal year includes a few months of the previous president.</li>
+    {deportations.sources[1] && <li>FY{deportations.sources[1].years.replace(/^FY/, '')} comes from DHS's monthly release and may be revised when it reaches the yearbook.</li>}
+  </ul>
+  <p class="small muted">
+    Sources: {deportations.sources.map((s, i) => <>{i > 0 && '; '}{s.publisher}, <a href={s.page}>{s.label}</a> ({s.years})</>)}. Fetched {formatDate(deportations.fetched)}.
+  </p>
+
+  <h2>More presidential records</h2>
+  <ul class="related">
+    {RECORD_PAGES.filter((r) => r.path !== '/deportations').map((r) => <li><a href={`${base}${r.path}`}>{r.label}</a></li>)}
+  </ul>
+</Layout>
+
+<style>
+  .answer { max-width: 68ch; font-size: 17px; }
+  .notes { max-width: 72ch; padding-left: 20px; }
+  .notes li { margin: 6px 0; }
+  .related { padding-left: 20px; }
+  .related li { margin: 4px 0; }
+</style>

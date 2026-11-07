@@ -1,0 +1,98 @@
+---
+// Executive orders by president: totals, pace and first 100 days for every
+// term since 1977. Counted order by order from the Federal Register from 1994,
+// from National Archives order-number ranges before.
+import Layout from '../layouts/Layout.astro';
+import BarList from '../components/BarList.astro';
+import LineChart from '../components/LineChart.astro';
+import { formatDate, today } from '../lib/data';
+import { executiveOrders, coverage, perYear as perYearPoints, ordersIndicator } from '../lib/policy';
+import { breadcrumbs, termYears } from '../lib/seo';
+import { orderStats, orderRanges, isCurrent, termLength, n, RECORD_PAGES, WORDS } from '../lib/records';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const stats = orderStats();
+const done = stats.filter((s) => !isCurrent(s.p));
+const cur = stats.find((s) => isCurrent(s.p));
+const most = [...done].sort((a, b) => b.count - a.count)[0];
+const fastest = [...done].sort((a, b) => b.perYear - a.perYear)[0];
+const hundred = stats.filter((s) => s.first100 !== null);
+const top100 = [...hundred].sort((a, b) => b.first100! - a.first100!)[0];
+const rate = (v: number) => Math.round(v);
+const first = stats[0].p.start.slice(0, 4);
+const thisYear = today().slice(0, 4);
+
+const answer = [
+  `Of the presidents since ${first}, ${most.p.name} signed the most executive orders: ${n(most.count)} in ${termLength(most.p)}.`,
+  fastest !== most && `${fastest.p.name} signed them fastest, about ${rate(fastest.perYear)} a year.`,
+  cur && `${cur.p.name} has signed ${n(cur.count)} so far, about ${rate(cur.perYear)} a year${cur.perYear > fastest.perYear ? `, a faster pace than any term since ${first}` : ''}.`,
+  top100 && `In the first 100 days, ${top100.p.name} signed ${n(top100.first100!)}, the most of the ${WORDS[hundred.length] ?? hundred.length} terms with a complete record (${hundred[0].p.start.slice(0, 4)} on).`,
+].filter(Boolean).join(' ');
+const description = `Executive orders signed by every president since ${first}, per year in office and in the first 100 days: ${stats.slice().reverse().slice(0, 3).map((s) => `${s.p.name.replace(/ \((\w+) term\)/, ' ($1)')} ${n(s.count)}${isCurrent(s.p) ? ' so far' : ''}`).join(', ')}.`;
+const points = perYearPoints(executiveOrders.map((o) => o.date), coverage.orders);
+---
+<Layout
+  title={`Executive orders by president, ${first}–${thisYear}`}
+  description={description}
+  schema={breadcrumbs([['Policy timeline', '/events'], ['Executive orders by president', '/executive-orders']])}
+>
+  <p class="small"><a href={`${base}/events`}>Policy timeline</a></p>
+  <h1>Executive orders by president</h1>
+  <p class="lede">Numbered executive orders signed in each term since {first}. Memoranda, proclamations and other presidential documents aren't counted.</p>
+  <p class="answer">{answer}</p>
+
+  <BarList
+    label="Executive orders signed, by president"
+    rows={stats.slice().reverse().map((s) => ({
+      label: s.p.name, href: `${base}/presidents/${s.p.slug}`, sub: termYears(s.p),
+      value: s.count, display: `${n(s.count)}${isCurrent(s.p) ? ' so far' : ''}`, partial: isCurrent(s.p),
+    }))}
+  />
+
+  <h2>Every term</h2>
+  <div class="table-scroll">
+    <table class="data">
+      <thead><tr><th>President</th><th>Orders</th><th>Per year in office</th><th>First 100 days</th><th>Order numbers</th></tr></thead>
+      <tbody>
+        {stats.slice().reverse().map((s) => (
+          <tr>
+            <td><a href={`${base}/presidents/${s.p.slug}`}>{s.p.name}</a><br /><span class="muted small">{termYears(s.p)}</span></td>
+            <td><b>{n(s.count)}</b>{isCurrent(s.p) && <span class="muted"> so far</span>}</td>
+            <td>{s.perYear.toFixed(1)}</td>
+            <td>{s.first100 === null ? <span class="muted">—</span> : n(s.first100)}</td>
+            <td>{s.numbers ? `${s.numbers[0]}–${s.numbers[1]}` : '—'}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Executive orders per year</h2>
+  <div class="panel">
+    <LineChart indicator={ordersIndicator} points={points} from={points[0][0]} bars showRecessions={false} />
+  </div>
+  <p class="small muted">{thisYear} is the year so far. Inauguration years are split between two presidents.</p>
+
+  <h2>How these are counted</h2>
+  <ul class="notes">
+    <li>From {coverage.orders!.slice(0, 4)} on, each order is counted from the <a href="https://www.federalregister.gov/presidential-documents/executive-orders">Federal Register</a>, by the date it was signed. Each president's page lists every one.</li>
+    <li>Earlier terms are counted from the first and last order number of each administration in the National Archives' <a href={orderRanges.source.page}>{orderRanges.source.label}</a>: {stats.filter((s) => !s.fromRecord).map((s) => `${s.p.name} EO ${s.numbers![0]}–${s.numbers![1]}`).join(', ')}. The same tables match the Federal Register count for the later terms they cover.</li>
+    <li>First-100-day counts need the order-by-order record, so they start with {hundred[0].p.name}.</li>
+    <li>A count says nothing about scope: one order can reorganize an agency, another can rename an advisory board. For scale, Franklin D. Roosevelt's orders run from EO 6071 to EO 9537 (1933–1945).</li>
+  </ul>
+  <p class="small muted">Federal Register data fetched weekly; archive ranges checked {formatDate(orderRanges.checked)}.</p>
+
+  <h2>More presidential records</h2>
+  <ul class="related">
+    {RECORD_PAGES.filter((r) => r.path !== '/executive-orders').map((r) => <li><a href={`${base}${r.path}`}>{r.label}</a></li>)}
+    <li><a href={`${base}/events`}>Laws signed by year and the policy timeline</a></li>
+  </ul>
+</Layout>
+
+<style>
+  .answer { max-width: 68ch; font-size: 17px; }
+  .notes { max-width: 72ch; padding-left: 20px; }
+  .notes li { margin: 6px 0; }
+  .related { padding-left: 20px; }
+  .related li { margin: 4px 0; }
+</style>

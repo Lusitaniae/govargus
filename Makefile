@@ -23,7 +23,7 @@ RUN     = $(TRAP) docker run --rm --init --name $$name -v "$(APP):/work" -w /wor
 RUN_KEYED = $(TRAP) docker run --rm --init --name $$name -v "$(APP):/work" -w /work -u $(UID):$(GID) $(ENV) -e CONGRESS_API_KEY $(IMAGE)
 RUN_OFF = $(TRAP) docker run --rm --init --name $$name -v "$(APP):/work" -w /work -u $(UID):$(GID) $(ENV) --network=none $(IMAGE)
 
-.PHONY: all install data policy build check dev preview clean
+.PHONY: all install data policy records build check dev preview clean
 
 all: check build
 
@@ -42,6 +42,11 @@ data:
 # https://api.data.gov/signup/) or it falls back to the 10-requests/hour DEMO_KEY.
 policy:
 	$(RUN_KEYED) node scripts/fetch-policy.mjs
+
+# Vetoes (House historian), clemency (DOJ Pardon Attorney) and deportations
+# (DHS statistics) into src/data/records/. Needs the network.
+records:
+	$(RUN) node scripts/fetch-records.mjs
 
 # Offline. Call binaries directly, NOT `npm run`: the image's Socket Firewall
 # shims npm and, under --network=none, fails open and exits 0 without running.

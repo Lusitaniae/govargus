@@ -1,0 +1,82 @@
+{
+ "sources": [
+  {
+   "publisher": "US Department of Justice, Office of the Pardon Attorney",
+   "label": "Clemency Statistics",
+   "page": "https://www.justice.gov/pardon/clemency-statistics",
+   "updated": "January 23, 2025"
+  },
+  {
+   "publisher": "US Department of Justice, Office of the Pardon Attorney",
+   "label": "Clemency Grants by President Donald J. Trump (2025-Present)",
+   "page": "https://www.justice.gov/pardon/clemency-grants-president-donald-j-trump-2025-present"
+  }
+ ],
+ "fetched": "2026-11-07",
+ "terms": {
+  "biden": {
+   "pardons": 80,
+   "commutations": 4165,
+   "remissions": 0,
+   "period": "48 mos."
+  },
+  "trump-2017": {
+   "pardons": 144,
+   "commutations": 94,
+   "remissions": 0,
+   "period": "47.5 mos."
+  },
+  "obama": {
+   "pardons": 212,
+   "commutations": 1715,
+   "remissions": 0,
+   "period": "96 mos."
+  },
+  "bush-43": {
+   "pardons": 189,
+   "commutations": 11,
+   "remissions": 0,
+   "period": "96 mos."
+  },
+  "clinton": {
+   "pardons": 396,
+   "commutations": 61,
+   "remissions": 2,
+   "period": "96 mos."
+  },
+  "bush-41": {
+   "pardons": 74,
+   "commutations": 3,
+   "remissions": 0,
+   "period": "48 mos."
+  },
+  "reagan": {
+   "pardons": 393,
+   "commutations": 13,
+   "remissions": 0,
+   "period": "96 mos."
+  },
+  "carter": {
+   "pardons": 534,
+   "commutations": 29,
+   "remissions": 3,
+   "period": "48 mos."
+  },
+  "trump-2025": {
+   "pardons": 139,
+   "commutations": 28,
+   "remissions": 0,
+   "period": "through 2026-11-07",
+   "proclamations": [
+    {
+     "date": "2025-01-20",
+     "title": "Granting Pardons and Commutations of Sentences for Certain Offenses Relating to the Events at or near the United States Capitol on January 6, 2021"
+    },
+    {
+     "date": "2025-11-07",
+     "title": "Granting Pardons for Certain Offenses Related to the 2020 Presidential Election"
+    }
+   ]
+  }
+ }
+}

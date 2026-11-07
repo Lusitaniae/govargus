@@ -1,0 +1,44 @@
+---
+// Horizontal bars, one per row, with the number written out: a chart that is
+// also a readable list. Rows with `partial` (a term still running) are hatched.
+interface Row {
+  label: string;
+  href?: string;
+  sub?: string;
+  value: number;
+  display: string;
+  partial?: boolean;
+}
+interface Props { rows: Row[]; label: string }
+const { rows, label } = Astro.props;
+const max = Math.max(...rows.map((r) => r.value), 1);
+---
+<ol class="bars" aria-label={label}>
+  {rows.map((r) => (
+    <li>
+      <div class="who">
+        {r.href ? <a href={r.href}>{r.label}</a> : <span>{r.label}</span>}
+        {r.sub && <span class="muted small"> {r.sub}</span>}
+      </div>
+      <div class="track">
+        {/* Leave room for the number beside the longest bar; no bar at all for zero. */}
+        {r.value > 0 && <div class:list={['bar', { partial: r.partial }]} style={`width: calc((100% - 104px) * ${Math.max(r.value / max, 0.005).toFixed(4)})`}></div>}
+        <span class="num">{r.display}</span>
+      </div>
+    </li>
+  ))}
+</ol>
+
+<style>
+  .bars { list-style: none; margin: 0; padding: 0; }
+  .bars li { display: grid; grid-template-columns: minmax(150px, 220px) 1fr; gap: 4px 12px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--grid); }
+  .who { font-size: 14px; line-height: 1.3; }
+  .who .small { white-space: nowrap; }
+  .track { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .bar { height: 14px; background: var(--series-1); border-radius: 2px; flex: none; }
+  .bar.partial { background: repeating-linear-gradient(45deg, var(--series-1) 0 3px, transparent 3px 6px); border: 1px solid var(--series-1); }
+  .num { font-size: 14px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  @media (max-width: 520px) {
+    .bars li { grid-template-columns: 1fr; }
+  }
+</style>

@@ -7,6 +7,7 @@ import {
   formatDate, KIND_LABEL, CHART_FROM, today,
 } from '../../lib/data';
 import { policyRecord, coverage } from '../../lib/policy';
+import { vetoes, clemency, deportationTerms, n } from '../../lib/records';
 import { presidentTitle, presidentHeading, presidentDescription, breadcrumbs } from '../../lib/seo';
 import { hasTermPage, termPath } from '../../lib/term';
 
@@ -24,6 +25,10 @@ const toCandidate = addYears(end, 2);
 const to = toCandidate > today() ? today() : toCandidate;
 const termEvents = events.filter((e) => e.date >= p.start && e.date < end);
 const rec = policyRecord(p);
+const veto = vetoes.presidents.find((r) => r.slug === p.slug);
+const clem = clemency.terms[p.slug];
+const dep = deportationTerms().find((t) => t.p.slug === p.slug);
+const sofar = p.end === null ? ' so far' : '';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 <Layout
@@ -88,9 +93,28 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     </div>
     <div class="panel">
       <p class="stat">{rec.ordersAny ? rec.orders.length : '—'}</p>
-      <p>executive orders signed</p>
-      {!rec.ordersComplete && <p class="muted small">{rec.ordersAny ? 'Partial: the' : 'The'} Federal Register's machine-readable record starts in 1994.</p>}
+      <p><a href={`${base}/executive-orders`}>executive orders signed</a>{sofar}</p>
+      {!rec.ordersComplete && <p class="muted small">{rec.ordersAny ? 'Partial: the' : 'The'} Federal Register's machine-readable record starts in 1994; the <a href={`${base}/executive-orders`}>full count</a> uses order numbers.</p>}
     </div>
+    {veto && (
+      <div class="panel">
+        <p class="stat">{n(veto.total)}</p>
+        <p><a href={`${base}/vetoes`}>bills vetoed</a>{sofar}<span class="muted"> · {n(veto.overridden)} overridden</span></p>
+      </div>
+    )}
+    {clem && (
+      <div class="panel">
+        <p class="stat">{n(clem.pardons + clem.commutations + clem.remissions)}</p>
+        <p><a href={`${base}/pardons`}>pardons and commutations</a>{sofar}<span class="muted"> · {n(clem.pardons)} pardons, {n(clem.commutations)} commutations</span></p>
+      </div>
+    )}
+    {dep && (
+      <div class="panel">
+        <p class="stat">{dep.years.length ? n(dep.removals) : '—'}</p>
+        <p><a href={`${base}/deportations`}>deportations (removals)</a></p>
+        <p class="muted small">{dep.years.length ? `Fiscal years ${dep.years[0].fy}–${dep.years.at(-1)!.fy}${dep.missing.length ? `; ${dep.missing.map((fy) => `FY${fy}`).join(', ')} not published yet` : ''}.` : 'DHS has not published figures for this term yet.'}</p>
+      </div>
+    )}
   </div>
   {rec.laws.length > 0 && (
     <details>

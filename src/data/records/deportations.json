@@ -1,0 +1,356 @@
+{
+ "sources": [
+  {
+   "publisher": "DHS Office of Homeland Security Statistics",
+   "label": "Yearbook of Immigration Statistics 2023, Table 39",
+   "page": "https://ohss.dhs.gov/topics/immigration/yearbook/2023/table39",
+   "years": "FY1977–FY2023"
+  },
+  {
+   "publisher": "DHS Office of Homeland Security Statistics",
+   "label": "DHS Repatriations (Key Homeland Security Metrics)",
+   "page": "https://ohss.dhs.gov/khsm/dhs-repatriations",
+   "file": "https://ohss.dhs.gov/sites/default/files/2025-01/KHSM%20Repatriations%20fy25m11.xlsx",
+   "years": "FY2024"
+  }
+ ],
+ "fetched": "2026-11-07",
+ "years": [
+  {
+   "fy": 1977,
+   "removals": 31260,
+   "returns": 867020,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 1978,
+   "removals": 29280,
+   "returns": 975520,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 1979,
+   "removals": 26830,
+   "returns": 966140,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 1980,
+   "removals": 18010,
+   "returns": 719210,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 1981,
+   "removals": 17380,
+   "returns": 823880,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 1982,
+   "removals": 15220,
+   "returns": 812570,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 1983,
+   "removals": 19210,
+   "returns": 931600,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 1984,
+   "removals": 18700,
+   "returns": 909830,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 1985,
+   "removals": 23110,
+   "returns": 1041300,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 1986,
+   "removals": 24590,
+   "returns": 1586320,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 1987,
+   "removals": 24340,
+   "returns": 1091200,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 1988,
+   "removals": 25830,
+   "returns": 911790,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 1989,
+   "removals": 34430,
+   "returns": 830890,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 1990,
+   "removals": 30040,
+   "returns": 1022530,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 1991,
+   "removals": 33190,
+   "returns": 1061110,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 1992,
+   "removals": 43670,
+   "returns": 1105830,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 1993,
+   "removals": 42540,
+   "returns": 1243410,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 1994,
+   "removals": 45670,
+   "returns": 1029110,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 1995,
+   "removals": 50920,
+   "returns": 1313760,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 1996,
+   "removals": 69680,
+   "returns": 1573430,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 1997,
+   "removals": 114430,
+   "returns": 1440680,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 1998,
+   "removals": 174810,
+   "returns": 1570130,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 1999,
+   "removals": 183110,
+   "returns": 1574860,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 2000,
+   "removals": 188470,
+   "returns": 1675880,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 2001,
+   "removals": 189030,
+   "returns": 1349370,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 2002,
+   "removals": 165170,
+   "returns": 1012120,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 2003,
+   "removals": 211100,
+   "returns": 945290,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 2004,
+   "removals": 240670,
+   "returns": 1166580,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 2005,
+   "removals": 246430,
+   "returns": 1096920,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 2006,
+   "removals": 280970,
+   "returns": 1043380,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 2007,
+   "removals": 319380,
+   "returns": 891390,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 2008,
+   "removals": 359800,
+   "returns": 811260,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 2009,
+   "removals": 379740,
+   "returns": 582560,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 2010,
+   "removals": 382450,
+   "returns": 471800,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 2011,
+   "removals": 390410,
+   "returns": 322050,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 2012,
+   "removals": 415580,
+   "returns": 231100,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 2013,
+   "removals": 432330,
+   "returns": 178980,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 2014,
+   "removals": 404700,
+   "returns": 163560,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 2015,
+   "removals": 323680,
+   "returns": 129570,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 2016,
+   "removals": 331550,
+   "returns": 106450,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 2017,
+   "removals": 286670,
+   "returns": 100690,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 2018,
+   "removals": 327280,
+   "returns": 159700,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 2019,
+   "removals": 347320,
+   "returns": 170950,
+   "expulsions": 0,
+   "source": "yearbook"
+  },
+  {
+   "fy": 2020,
+   "removals": 234510,
+   "returns": 166820,
+   "expulsions": 206790,
+   "source": "yearbook"
+  },
+  {
+   "fy": 2021,
+   "removals": 85450,
+   "returns": 177720,
+   "expulsions": 1071070,
+   "source": "yearbook"
+  },
+  {
+   "fy": 2022,
+   "removals": 103840,
+   "returns": 260800,
+   "expulsions": 1103970,
+   "source": "yearbook"
+  },
+  {
+   "fy": 2023,
+   "removals": 183360,
+   "returns": 443550,
+   "expulsions": 579080,
+   "source": "yearbook"
+  },
+  {
+   "fy": 2024,
+   "removals": 329990,
+   "returns": 447600,
+   "expulsions": 0,
+   "source": "khsm"
+  }
+ ]
+}
