@@ -12,8 +12,8 @@ jobs:
   refresh:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
       # A failing source shouldn't throw away what the others fetched: commit
@@ -21,6 +21,10 @@ jobs:
       - id: data
         run: node scripts/fetch-data.mjs
         continue-on-error: true
+        env:
+          # CDC WONDER blocks GitHub's runners, so keep the committed final
+          # years (they change yearly); refresh them with `make data` locally.
+          SKIP_WONDER: 1
       - id: policy
         run: node scripts/fetch-policy.mjs
         continue-on-error: true

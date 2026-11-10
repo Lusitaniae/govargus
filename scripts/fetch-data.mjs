@@ -129,6 +129,12 @@ async function cdcSocrata({ parts }, id) {
 // --- CDC WONDER ----------------------------------------------------------------
 
 // WONDER takes a saved request as XML via POST and asks for 15s between queries.
+// Since 2026-10 its datarequest endpoint has answered GitHub's runners (and a
+// Hetzner server) with an Akamai 403 ("Access Denied") while still answering
+// `make data` from a home connection. Final years only change once a year, so
+// CI sets SKIP_WONDER: it keeps the committed final points (keptFinals) and
+// still refreshes the provisional ones. When CDC publishes a new final year, run
+// `make data ONLY=<id>` locally and commit it.
 async function cdcWonder({ requests }, id) {
   const loaded = [];
   for (const [i, req] of requests.entries()) {
@@ -204,6 +210,13 @@ async function cdcProvisional({ dataset, where }, id, finals) {
 
 const FETCHERS = { fred, fbi, 'cdc-socrata': cdcSocrata, 'cdc-wonder': cdcWonder, 'census-xlsx': censusXlsx };
 
+/** The committed series for `id` and its final (non-provisional) points. Throws if there is none. */
+async function keptFinals(id) {
+  const prev = JSON.parse(await readFile(new URL(`${id}.json`, SERIES_DIR), 'utf8'));
+  const finals = prev.provisionalFrom ? prev.points.filter(([d]) => d < prev.provisionalFrom) : prev.points;
+  return { prev, finals };
+}
+
 // --- run -----------------------------------------------------------------------
 
 const config = JSON.parse(await readFile(new URL('indicators.json', ROOT), 'utf8'));
@@ -216,15 +229,23 @@ for (const ind of config.indicators) {
   try {
     const fetcher = FETCHERS[ind.source.kind];
     if (!fetcher) throw new Error(`unknown source kind ${ind.source.kind}`);
-    const points = (await fetcher(ind.source, ind.id)).filter(([d]) => d >= KEEP_FROM);
+    let points, kept;
+    if (ind.source.kind === 'cdc-wonder' && process.env.SKIP_WONDER) {
+      kept = await keptFinals(ind.id);
+      points = kept.finals;
+    } else {
+      points = (await fetcher(ind.source, ind.id)).filter(([d]) => d >= KEEP_FROM);
+    }
     if (points.length < 8) throw new Error(`only ${points.length} points`);
     const out = { id: ind.id, fetched: new Date().toISOString().slice(0, 10), points };
     if (ind.source.provisional) {
       const extra = await cdcProvisional(ind.source.provisional, ind.id, points);
       if (extra.length) Object.assign(out, { points: [...points, ...extra], provisionalFrom: extra[0][0] });
     }
+    // Don't advance `fetched` (sitemap lastmod, dateModified) for data that didn't change.
+    if (kept && JSON.stringify(out.points) === JSON.stringify(kept.prev.points)) out.fetched = kept.prev.fetched;
     await writeFile(new URL(`${ind.id}.json`, SERIES_DIR), JSON.stringify(out) + '\n');
-    console.log(`${ind.id.padEnd(26)} ${points.length} pts, ${points[0][0].slice(0, 4)}–, latest ${points.at(-1).join(' = ')}`);
+    console.log(`${ind.id.padEnd(26)} ${points.length} pts, ${points[0][0].slice(0, 4)}–, latest ${points.at(-1).join(' = ')}${kept ? ' (kept)' : ''}`);
   } catch (err) {
     failed++;
     console.error(`FAILED ${ind.id}: ${err.message}`);
